@@ -1,0 +1,1003 @@
+[
+  {
+    "id_alerta": "INC-SSH-001",
+    "timestamp": "2026-06-10T08:00:10Z",
+    "ip_origen": "203.0.113.45",
+    "ip_destino": "10.10.20.15",
+    "hostname": "srv-web-01",
+    "usuario": [
+      "admin",
+      "backup",
+      "devops",
+      "root"
+    ],
+    "tipo_incidente": "SSH Brute Force",
+    "severidad": "Crítica",
+    "táctica_mitre": "Credential Access",
+    "técnica_mitre": "Brute Force",
+    "id_técnica": "T1110",
+    "subtécnica_mitre": "Password Guessing",
+    "id_subtécnica": "T1110.001",
+    "evidencia": [
+      "6 intentos fallidos SSH desde 203.0.113.45 hacia srv-web-01 (10.10.20.15).",
+      "Usuarios observados: admin, backup, devops, root.",
+      "La IP origen probó credenciales contra múltiples usuarios."
+    ],
+    "recomendación_playbook": [
+      "Simular bloqueo temporal de la IP origen en controles perimetrales.",
+      "Revisar logs de autenticación SSH en el host afectado.",
+      "Verificar si existieron accesos exitosos posteriores al patrón de fallos.",
+      "Validar si los usuarios atacados usan contraseñas débiles o reutilizadas.",
+      "Forzar cambio de contraseña para cuentas comprometidas o de alto riesgo.",
+      "Habilitar o reforzar MFA para cuentas administrativas.",
+      "Aumentar monitoreo sobre la IP origen, host destino y usuarios atacados.",
+      "Notificar analista SOC y documentar decisión de escalamiento.",
+      "Evaluar campaña de password spraying contra múltiples cuentas."
+    ],
+    "requiere_escalamiento": true,
+    "nivel_escalamiento": "SOC Nivel 2 / Incident Responder",
+    "prioridad": "P1",
+    "urgencia": "Inmediata",
+    "justificación": "severidad calculada Crítica; múltiples usuarios atacados por la misma IP origen; IP origen aparece repetidamente (11 eventos).",
+    "eventos_relacionados": [
+      "ALR-SSH-0001",
+      "ALR-SSH-0002",
+      "ALR-SSH-0003",
+      "ALR-SSH-0004",
+      "ALR-SSH-0005",
+      "ALR-SSH-0006"
+    ],
+    "contexto_historico": {
+      "ip_origen_recurrente": false,
+      "usuarios_recurrentes": [],
+      "hostname_recurrente": false,
+      "incidentes_relacionados_previos": 0,
+      "incidentes_criticos_previos": 0,
+      "patron_repetido": false,
+      "resumen_contexto": "No se identifican incidentes previos relacionados en esta ejecución."
+    },
+    "analisis_qwen3_placeholder": {
+      "motor": "Qwen3",
+      "estado": "simulado",
+      "respuesta": "Integración futura: Qwen3 se utilizará como motor IA del agente para analizar contexto, enriquecer clasificación, sugerir playbooks y mejorar el razonamiento SOC.",
+      "capacidades_futuras": [
+        "analizar contexto histórico de alertas",
+        "generar recomendaciones explicadas",
+        "apoyar clasificación de incidentes",
+        "sugerir playbooks adaptados al riesgo",
+        "resumir evidencia para analistas SOC"
+      ],
+      "contexto_recibido": {
+        "id_alerta": "INC-SSH-001",
+        "tipo_detector": "ssh_authentication_aggregate",
+        "ip_origen": "203.0.113.45",
+        "hostname": "srv-web-01"
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "Un incidente de SSH Brute Force con 6 intentos fallidos y múltiples usuarios atacados en la IP originante, clasificado como grave. La táctica de Password Guessing en T1110.001 y el patrón de fallas en múltiples usuarios indican riesgo persistente.",
+      "hechos_observados": [
+        "6 intentos fallidos SSH desde 203.0.113.45 hacia srv-web-01.",
+        "Usuarios observados: admin, backup, devops, root.",
+        "La IP origen probó credenciales contra múltiples usuarios."
+      ],
+      "inferencias_razonables": [
+        "El historial no muestra incidentes previos relacionados, lo que refleja la nueva emergencia.",
+        "El uso de múltiples usuarios y la repetición de la IP originante indican un patrón de ataque continuo."
+      ],
+      "analisis_riesgo": "El riesgo persistente se basa en el enfoque de ataque repetido y la presencia de múltiples usuarios atacados. La simulación de bloqueo temporal de la IP originante y revisar logs de autenticación son recomendaciones clave.",
+      "explicacion_mitre": "La táctica de Brute Force en T1110.001 y el uso de múltiples usuarios reflejan un enfoque de ataque sistemático, con un impacto en la seguridad del sistema.",
+      "uso_contexto_historico": "El contexto histórico indica que no hay incidentes previos relacionados, lo que justifica la novedad del incidente y su escalabilidad.",
+      "recomendacion_soc": [
+        "Simular bloqueo temporal de la IP origen en controles perimetrales.",
+        "Revisar logs de autenticación SSH en el host afectado.",
+        "Verificar si existieron accesos exitosos posteriores al patrón de fallos.",
+        "Validar si los usuarios atacados usan contraseñas débiles o reutilizadas.",
+        "Forzar cambio de contraseña para cuentas comprometidas o de alto riesgo.",
+        "Habilitar o reforzar MFA para cuentas administrativas."
+      ],
+      "posibles_falsos_positivos": [
+        "No disponible en el reporte.",
+        "No disponible en el reporte."
+      ],
+      "siguiente_accion_sugerida": "Evaluar campaña de password spraying contra múltiples cuentas."
+    }
+  },
+  {
+    "id_alerta": "INC-SSH-002",
+    "timestamp": "2026-06-10T08:25:08Z",
+    "ip_origen": "203.0.113.45",
+    "ip_destino": "10.10.20.20",
+    "hostname": "srv-auth-01",
+    "usuario": [
+      "admin",
+      "devops",
+      "root",
+      "soporte"
+    ],
+    "tipo_incidente": "SSH Brute Force",
+    "severidad": "Crítica",
+    "táctica_mitre": "Credential Access",
+    "técnica_mitre": "Brute Force",
+    "id_técnica": "T1110",
+    "subtécnica_mitre": "Password Guessing",
+    "id_subtécnica": "T1110.001",
+    "evidencia": [
+      "5 intentos fallidos SSH desde 203.0.113.45 hacia srv-auth-01 (10.10.20.20).",
+      "Usuarios observados: admin, devops, root, soporte.",
+      "La IP origen probó credenciales contra múltiples usuarios."
+    ],
+    "recomendación_playbook": [
+      "Simular bloqueo temporal de la IP origen en controles perimetrales.",
+      "Revisar logs de autenticación SSH en el host afectado.",
+      "Verificar si existieron accesos exitosos posteriores al patrón de fallos.",
+      "Validar si los usuarios atacados usan contraseñas débiles o reutilizadas.",
+      "Forzar cambio de contraseña para cuentas comprometidas o de alto riesgo.",
+      "Habilitar o reforzar MFA para cuentas administrativas.",
+      "Aumentar monitoreo sobre la IP origen, host destino y usuarios atacados.",
+      "Notificar analista SOC y documentar decisión de escalamiento.",
+      "Evaluar campaña de password spraying contra múltiples cuentas."
+    ],
+    "requiere_escalamiento": true,
+    "nivel_escalamiento": "SOC Nivel 2 / Incident Responder",
+    "prioridad": "P1",
+    "urgencia": "Inmediata",
+    "justificación": "severidad calculada Crítica; múltiples usuarios atacados por la misma IP origen; IP origen aparece repetidamente (11 eventos).",
+    "eventos_relacionados": [
+      "ALR-SSH-0007",
+      "ALR-SSH-0008",
+      "ALR-SSH-0009",
+      "ALR-SSH-0010",
+      "ALR-SSH-0011"
+    ],
+    "contexto_historico": {
+      "ip_origen_recurrente": true,
+      "usuarios_recurrentes": [
+        "admin",
+        "devops",
+        "root"
+      ],
+      "hostname_recurrente": false,
+      "incidentes_relacionados_previos": 1,
+      "incidentes_criticos_previos": 1,
+      "patron_repetido": true,
+      "resumen_contexto": "Se identifican 1 incidentes previos relacionados. 1 fueron críticos. La IP origen ya había aparecido antes. Usuarios recurrentes: admin, devops, root. Existe patrón repetido de fuerza bruta SSH."
+    },
+    "analisis_qwen3_placeholder": {
+      "motor": "Qwen3",
+      "estado": "simulado",
+      "respuesta": "Integración futura: Qwen3 se utilizará como motor IA del agente para analizar contexto, enriquecer clasificación, sugerir playbooks y mejorar el razonamiento SOC.",
+      "capacidades_futuras": [
+        "analizar contexto histórico de alertas",
+        "generar recomendaciones explicadas",
+        "apoyar clasificación de incidentes",
+        "sugerir playbooks adaptados al riesgo",
+        "resumir evidencia para analistas SOC"
+      ],
+      "contexto_recibido": {
+        "id_alerta": "INC-SSH-002",
+        "tipo_detector": "ssh_authentication_aggregate",
+        "ip_origen": "203.0.113.45",
+        "hostname": "srv-auth-01"
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "El incidente identifica 5 intentos fallidos SSH desde la IP 203.0.113.45 hacia srv-auth-01 (10.10.20.20), con múltiples usuarios (admin, devops, root) y patrón de reiteración. La severidad se calcula como crítica, lo que sugiere un riesgo significativo para la seguridad.",
+      "hechos_observados": [
+        "5 intentos fallidos SSH desde 203.0.113.45 hacia srv-auth-01 (10.10.20.20).",
+        "Usuarios observados: admin, devops, root, soporte.",
+        "La IP origen probó credenciales contra múltiples usuarios."
+      ],
+      "inferencias_razonables": [
+        "La IP origen ha repetidamente intentado atacar múltiples usuarios, lo que indica un patrón de fuerza bruta en el protocolo SSH.",
+        "El historial muestra que la IP ya ha estado en uso previosmente, lo que aumenta la probabilidad de repetición."
+      ],
+      "analisis_riesgo": "El incidente representa un riesgo crítico por múltiples intentos fallidos y la repetición de ataques con la misma IP origen. Se recomienda monitoreo continuo y validación de contraseñas para detectar futuros ataqueos.",
+      "explicacion_mitre": "La táctica de fuerza bruta se basa en el uso de técnicas T1110, con subtécnica T1110.001 (password guessing).",
+      "uso_contexto_historico": "El contexto histórico muestra que la IP origen ha probado credenciales antes, lo que aumenta la carga de riesgo y el impacto en la seguridad.",
+      "recomendacion_soc": [
+        "Simular bloqueo temporal de la IP origen en controles perimetrales.",
+        "Revisar logs de autenticación SSH en el host afectado.",
+        "Validar si existieron accesos exitosos posteriores al patrón de fallos.",
+        "Validar si los usuarios atacados usan contraseñas débiles o reutilizadas.",
+        "Forzar cambio de contraseña para cuentas comprometidas o de alto riesgo.",
+        "Habilitar o reforzar MFA para cuentas administrativas.",
+        "Aumentar monitoreo sobre la IP origen, host destino y usuarios atacados."
+      ],
+      "posibles_falsos_positivos": [
+        "No disponible en el reporte.",
+        "No disponible en el reporte."
+      ],
+      "siguiente_accion_sugerida": "Evaluar campaña de password spraying contra múltiples cuentas."
+    }
+  },
+  {
+    "id_alerta": "INC-SSH-003",
+    "timestamp": "2026-06-10T09:10:02Z",
+    "ip_origen": "198.51.100.77",
+    "ip_destino": "10.10.30.21",
+    "hostname": "srv-db-01",
+    "usuario": [
+      "analyst",
+      "backup",
+      "devops",
+      "oracle",
+      "root"
+    ],
+    "tipo_incidente": "SSH Brute Force",
+    "severidad": "Crítica",
+    "táctica_mitre": "Credential Access",
+    "técnica_mitre": "Brute Force",
+    "id_técnica": "T1110",
+    "subtécnica_mitre": "Password Guessing",
+    "id_subtécnica": "T1110.001",
+    "evidencia": [
+      "7 intentos fallidos SSH desde 198.51.100.77 hacia srv-db-01 (10.10.30.21).",
+      "Usuarios observados: analyst, backup, devops, oracle, root.",
+      "La IP origen probó credenciales contra múltiples usuarios."
+    ],
+    "recomendación_playbook": [
+      "Simular bloqueo temporal de la IP origen en controles perimetrales.",
+      "Revisar logs de autenticación SSH en el host afectado.",
+      "Verificar si existieron accesos exitosos posteriores al patrón de fallos.",
+      "Validar si los usuarios atacados usan contraseñas débiles o reutilizadas.",
+      "Forzar cambio de contraseña para cuentas comprometidas o de alto riesgo.",
+      "Habilitar o reforzar MFA para cuentas administrativas.",
+      "Aumentar monitoreo sobre la IP origen, host destino y usuarios atacados.",
+      "Notificar analista SOC y documentar decisión de escalamiento.",
+      "Evaluar campaña de password spraying contra múltiples cuentas."
+    ],
+    "requiere_escalamiento": true,
+    "nivel_escalamiento": "SOC Nivel 2 / Incident Responder",
+    "prioridad": "P1",
+    "urgencia": "Inmediata",
+    "justificación": "severidad calculada Crítica; múltiples usuarios atacados por la misma IP origen; IP origen aparece repetidamente (7 eventos).",
+    "eventos_relacionados": [
+      "ALR-SSH-0012",
+      "ALR-SSH-0013",
+      "ALR-SSH-0014",
+      "ALR-SSH-0015",
+      "ALR-SSH-0016",
+      "ALR-SSH-0017",
+      "ALR-SSH-0018"
+    ],
+    "contexto_historico": {
+      "ip_origen_recurrente": false,
+      "usuarios_recurrentes": [
+        "backup",
+        "devops",
+        "root"
+      ],
+      "hostname_recurrente": false,
+      "incidentes_relacionados_previos": 2,
+      "incidentes_criticos_previos": 2,
+      "patron_repetido": true,
+      "resumen_contexto": "Se identifican 2 incidentes previos relacionados. 2 fueron críticos. Usuarios recurrentes: backup, devops, root. Existe patrón repetido de fuerza bruta SSH."
+    },
+    "analisis_qwen3_placeholder": {
+      "motor": "Qwen3",
+      "estado": "simulado",
+      "respuesta": "Integración futura: Qwen3 se utilizará como motor IA del agente para analizar contexto, enriquecer clasificación, sugerir playbooks y mejorar el razonamiento SOC.",
+      "capacidades_futuras": [
+        "analizar contexto histórico de alertas",
+        "generar recomendaciones explicadas",
+        "apoyar clasificación de incidentes",
+        "sugerir playbooks adaptados al riesgo",
+        "resumir evidencia para analistas SOC"
+      ],
+      "contexto_recibido": {
+        "id_alerta": "INC-SSH-003",
+        "tipo_detector": "ssh_authentication_aggregate",
+        "ip_origen": "198.51.100.77",
+        "hostname": "srv-db-01"
+      }
+    },
+    "analisis_qwen3_real": {
+      "error": "qwen3_no_disponible",
+      "detalle": "HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=60)"
+    }
+  },
+  {
+    "id_alerta": "INC-SSH-004",
+    "timestamp": "2026-06-10T10:05:04Z",
+    "ip_origen": "192.0.2.44",
+    "ip_destino": "10.10.40.12",
+    "hostname": "srv-app-01",
+    "usuario": [
+      "soporte"
+    ],
+    "tipo_incidente": "Suspicious Login Activity",
+    "severidad": "Crítica",
+    "táctica_mitre": "Initial Access",
+    "técnica_mitre": "Valid Accounts",
+    "id_técnica": "T1078",
+    "subtécnica_mitre": "N/A",
+    "id_subtécnica": "N/A",
+    "evidencia": [
+      "2 intentos fallidos SSH desde 192.0.2.44 hacia srv-app-01 (10.10.40.12).",
+      "Usuarios observados: soporte.",
+      "Se observó un login exitoso posterior para: soporte."
+    ],
+    "recomendación_playbook": [
+      "Verificar si el login exitoso fue legítimo con el dueño de la cuenta.",
+      "Revisar comandos ejecutados después del acceso.",
+      "Buscar persistencia, cambios de llaves SSH o creación de usuarios.",
+      "Forzar cambio de contraseña si no se puede validar legitimidad.",
+      "Notificar a un analista SOC para revisión manual.",
+      "Notificar analista SOC y documentar decisión de escalamiento.",
+      "Priorizar revisión de accesos exitosos y posible compromiso."
+    ],
+    "requiere_escalamiento": true,
+    "nivel_escalamiento": "SOC Nivel 2 / Incident Responder",
+    "prioridad": "P1",
+    "urgencia": "Inmediata",
+    "justificación": "severidad calculada Crítica; login exitoso posterior al patrón de intentos fallidos.",
+    "eventos_relacionados": [
+      "ALR-SSH-0019",
+      "ALR-SSH-0020",
+      "ALR-SSH-0021"
+    ],
+    "contexto_historico": {
+      "ip_origen_recurrente": false,
+      "usuarios_recurrentes": [
+        "soporte"
+      ],
+      "hostname_recurrente": false,
+      "incidentes_relacionados_previos": 1,
+      "incidentes_criticos_previos": 1,
+      "patron_repetido": false,
+      "resumen_contexto": "Se identifican 1 incidentes previos relacionados. 1 fueron críticos. Usuarios recurrentes: soporte."
+    },
+    "analisis_qwen3_placeholder": {
+      "motor": "Qwen3",
+      "estado": "simulado",
+      "respuesta": "Integración futura: Qwen3 se utilizará como motor IA del agente para analizar contexto, enriquecer clasificación, sugerir playbooks y mejorar el razonamiento SOC.",
+      "capacidades_futuras": [
+        "analizar contexto histórico de alertas",
+        "generar recomendaciones explicadas",
+        "apoyar clasificación de incidentes",
+        "sugerir playbooks adaptados al riesgo",
+        "resumir evidencia para analistas SOC"
+      ],
+      "contexto_recibido": {
+        "id_alerta": "INC-SSH-004",
+        "tipo_detector": "ssh_authentication_aggregate",
+        "ip_origen": "192.0.2.44",
+        "hostname": "srv-app-01"
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "Incidente identificado con 2 intentos fallidos SSH desde 192.0.2.44 hacia srv-app-01 (10.10.40.12) y un login exitoso para 'soporte', indicando un riesgo crítico en los accesos a servidores.",
+      "hechos_observados": [
+        "2 intentos fallidos SSH desde 192.0.2.44 hacia srv-app-01 (10.10.40.12).",
+        "Usuarios observados: soporte.",
+        "Se observó un login exitoso posterior para: soporte."
+      ],
+      "inferencias_razonables": [
+        "El login exitoso sugiere una violación de la legitimidad en los usuarios recurrentes. La técnica T1078 y la patrón de intentos fallidos reflejan un enfoque de escalabilidad en el ataque."
+      ],
+      "analisis_riesgo": "El incidente evidencia un patrón de escalabilidad en los accesos exitosos, con un alto nivel de riesgo (severidad crítico) y una necesidad de revisión de accesos exitosos y posibles compromisos. El historial de incidentes relacionados no muestra un patrón repetido.",
+      "explicacion_mitre": "La táctica_mitre T1078 y la técnica_mitre T1078 representan un enfoque de creación de usuarios recurrentes en la nube.",
+      "uso_contexto_historico": "El historial de incidentes relacionados indica que hay 1 incidente previo crítico, con usuarios recurrentes 'soporte'. No hay patrones repetidos en los incidentes.",
+      "recomendacion_soc": [
+        "Verificar la legitimidad del login exitoso con el dueño de la cuenta.",
+        "Revisar comandos ejecutados después del acceso exitoso."
+      ],
+      "posibles_falsos_positivos": [
+        "No invente subtécnica_mitre ni mitre_técnica.",
+        "No invente severidades ni intentos."
+      ],
+      "siguiente_accion_sugerida": "Revisar y documentar la legitimidad del login exitoso y implementar controles de validación para acceder a servidores recurrentes."
+    }
+  },
+  {
+    "id_alerta": "INC-SSH-005",
+    "timestamp": "2026-06-10T10:45:11Z",
+    "ip_origen": "198.51.100.88",
+    "ip_destino": "10.10.20.15",
+    "hostname": "srv-web-01",
+    "usuario": [
+      "backup"
+    ],
+    "tipo_incidente": "Suspicious Login Activity",
+    "severidad": "Crítica",
+    "táctica_mitre": "Initial Access",
+    "técnica_mitre": "Valid Accounts",
+    "id_técnica": "T1078",
+    "subtécnica_mitre": "N/A",
+    "id_subtécnica": "N/A",
+    "evidencia": [
+      "2 intentos fallidos SSH desde 198.51.100.88 hacia srv-web-01 (10.10.20.15).",
+      "Usuarios observados: backup.",
+      "Se observó un login exitoso posterior para: backup."
+    ],
+    "recomendación_playbook": [
+      "Verificar si el login exitoso fue legítimo con el dueño de la cuenta.",
+      "Revisar comandos ejecutados después del acceso.",
+      "Buscar persistencia, cambios de llaves SSH o creación de usuarios.",
+      "Forzar cambio de contraseña si no se puede validar legitimidad.",
+      "Notificar a un analista SOC para revisión manual.",
+      "Notificar analista SOC y documentar decisión de escalamiento.",
+      "Priorizar revisión de accesos exitosos y posible compromiso."
+    ],
+    "requiere_escalamiento": true,
+    "nivel_escalamiento": "SOC Nivel 2 / Incident Responder",
+    "prioridad": "P1",
+    "urgencia": "Inmediata",
+    "justificación": "severidad calculada Crítica; login exitoso posterior al patrón de intentos fallidos.",
+    "eventos_relacionados": [
+      "ALR-SSH-0022",
+      "ALR-SSH-0023",
+      "ALR-SSH-0024"
+    ],
+    "contexto_historico": {
+      "ip_origen_recurrente": false,
+      "usuarios_recurrentes": [
+        "backup"
+      ],
+      "hostname_recurrente": true,
+      "incidentes_relacionados_previos": 2,
+      "incidentes_criticos_previos": 2,
+      "patron_repetido": false,
+      "resumen_contexto": "Se identifican 2 incidentes previos relacionados. 2 fueron críticos. Usuarios recurrentes: backup. El hostname ya había sido observado previamente."
+    },
+    "analisis_qwen3_placeholder": {
+      "motor": "Qwen3",
+      "estado": "simulado",
+      "respuesta": "Integración futura: Qwen3 se utilizará como motor IA del agente para analizar contexto, enriquecer clasificación, sugerir playbooks y mejorar el razonamiento SOC.",
+      "capacidades_futuras": [
+        "analizar contexto histórico de alertas",
+        "generar recomendaciones explicadas",
+        "apoyar clasificación de incidentes",
+        "sugerir playbooks adaptados al riesgo",
+        "resumir evidencia para analistas SOC"
+      ],
+      "contexto_recibido": {
+        "id_alerta": "INC-SSH-005",
+        "tipo_detector": "ssh_authentication_aggregate",
+        "ip_origen": "198.51.100.88",
+        "hostname": "srv-web-01"
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "Incidente de login exitoso con T1078 (SSH) en srv-web-01, con 2 intentos fallidos y usuarios recurrentes 'backup'. Historial previo de 2 incidentes similares, indicando un patrón recurrente.",
+      "hechos_observados": [
+        "2 intentos fallidos SSH desde 198.51.100.88 hacia srv-web-01 (10.10.20.15).",
+        "Usuarios observados: backup."
+      ],
+      "inferencias_razonables": [
+        "Se observó un login exitoso posterior al patrón de intentos fallidos, sugiriendo un enfoque de acceder desde accounts ya existentes."
+      ],
+      "analisis_riesgo": "Incidente crítico con un riesgo de compromiso alto debido a la repetición de T1078 y el uso de un sistema con registros históricos similares.",
+      "explicacion_mitre": "Táctica de accesos desde validados usuarios, técnica de SSH, sin identificar técnicas MITRE en la información proporcionada.",
+      "uso_contexto_historico": "El historial de 2 incidentes previos relacionados con login exitoso y patrones similares refleja un enfoque recurrente en la vulnerabilidad de accesos exitosos.",
+      "recomendacion_soc": [
+        "Verificar legitimidad del login exitoso con el dueño de la cuenta.",
+        "Revisar comandos ejecutados después del acceso."
+      ],
+      "posibles_falsos_positivos": [
+        "No disponible en el reporte sobre técnicas MITRE o timestamps."
+      ],
+      "siguiente_accion_sugerida": "Priorizar revisión de accesos exitosos y posible compromiso, junto con notificar a un analista SOC."
+    }
+  },
+  {
+    "id_alerta": "INC-SSH-006",
+    "timestamp": "2026-06-10T11:20:03Z",
+    "ip_origen": "192.0.2.14",
+    "ip_destino": "10.10.40.12",
+    "hostname": "srv-app-01",
+    "usuario": [
+      "soporte"
+    ],
+    "tipo_incidente": "Unauthorized Access Attempt",
+    "severidad": "Baja",
+    "táctica_mitre": "Credential Access",
+    "técnica_mitre": "Brute Force",
+    "id_técnica": "T1110",
+    "subtécnica_mitre": "Password Guessing",
+    "id_subtécnica": "T1110.001",
+    "evidencia": [
+      "3 intentos fallidos SSH desde 192.0.2.14 hacia srv-app-01 (10.10.40.12).",
+      "Usuarios observados: soporte."
+    ],
+    "recomendación_playbook": [
+      "Revisar logs de autenticación para confirmar si el intento fue aislado.",
+      "Correlacionar la IP origen con alertas recientes del laboratorio.",
+      "Aumentar monitoreo temporal sobre el usuario afectado.",
+      "Recomendar MFA si el usuario no lo tiene habilitado."
+    ],
+    "requiere_escalamiento": false,
+    "nivel_escalamiento": "No requerido",
+    "prioridad": "P4",
+    "urgencia": "Baja",
+    "justificación": "No cumple criterios de escalamiento automático del MVP.",
+    "eventos_relacionados": [
+      "ALR-SSH-0025",
+      "ALR-SSH-0026",
+      "ALR-SSH-0027"
+    ],
+    "contexto_historico": {
+      "ip_origen_recurrente": false,
+      "usuarios_recurrentes": [
+        "soporte"
+      ],
+      "hostname_recurrente": true,
+      "incidentes_relacionados_previos": 2,
+      "incidentes_criticos_previos": 2,
+      "patron_repetido": false,
+      "resumen_contexto": "Se identifican 2 incidentes previos relacionados. 2 fueron críticos. Usuarios recurrentes: soporte. El hostname ya había sido observado previamente."
+    },
+    "analisis_qwen3_placeholder": {
+      "motor": "Qwen3",
+      "estado": "simulado",
+      "respuesta": "Integración futura: Qwen3 se utilizará como motor IA del agente para analizar contexto, enriquecer clasificación, sugerir playbooks y mejorar el razonamiento SOC.",
+      "capacidades_futuras": [
+        "analizar contexto histórico de alertas",
+        "generar recomendaciones explicadas",
+        "apoyar clasificación de incidentes",
+        "sugerir playbooks adaptados al riesgo",
+        "resumir evidencia para analistas SOC"
+      ],
+      "contexto_recibido": {
+        "id_alerta": "INC-SSH-006",
+        "tipo_detector": "ssh_authentication_aggregate",
+        "ip_origen": "192.0.2.14",
+        "hostname": "srv-app-01"
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "El incidente de SSH (INC-SSH-006) se registró con 3 intentos fallidos en un puerto SSH desde 192.0.2.14 hacia srv-app-01. La seguridad estándar se atenuó, y el usuario 'soporte' fue identificado. El historial muestra que hay 2 incidentes previos relacionados con esta táctica.",
+      "hechos_observados": [
+        "3 intentos fallidos SSH desde 192.0.2.14 hacia srv-app-01.",
+        "Usuarios observados: soporte."
+      ],
+      "inferencias_razonables": [
+        "El incidente coincide con patrones de ataque repetidos, lo que sugiere un aumento de riesgo.",
+        "La seguridad actual no aborda la autenticación del usuario 'soporte', lo que requiere monitoring más continuo."
+      ],
+      "analisis_riesgo": "El incidente se relaciona con ataques de tipo brute force, lo que aumenta el riesgo de intrusión. No hay evidencia de falsos positivos, y no se requiere intervención automática.",
+      "explicacion_mitre": "La táctica_mitre 'Credential Access' se basa en la técnica_mitre 'T1110', que implica un enfoque basado en fallas de la contraseña.",
+      "uso_contexto_historico": "El historial muestra 2 incidentes similares con ataques similares. No hay recurrencias en la patrón.",
+      "recomendacion_soc": [
+        "Monitorear la autenticación del usuario 'soporte' en múltiples entornos.",
+        "Evaluar si se ha implementado MFA en el sistema del usuario afectado."
+      ],
+      "posibles_falsos_positivos": [
+        "No hay evidencia de falsos posiciones en el historial.",
+        "No se identifican posibles falsos positivos.",
+        "No se incluyen datos no explícitamente en el reporte."
+      ],
+      "siguiente_accion_sugerida": "Revisar logs adicionales para confirmar el uso del usuario 'soporte' y ajustar el monitoreo en tiempo real."
+    }
+  },
+  {
+    "id_alerta": "INC-SSH-007",
+    "timestamp": "2026-06-10T12:05:12Z",
+    "ip_origen": "203.0.113.200",
+    "ip_destino": "10.10.20.20",
+    "hostname": "srv-auth-01",
+    "usuario": [
+      "analyst"
+    ],
+    "tipo_incidente": "Unauthorized Access Attempt",
+    "severidad": "Baja",
+    "táctica_mitre": "Credential Access",
+    "técnica_mitre": "Brute Force",
+    "id_técnica": "T1110",
+    "subtécnica_mitre": "Password Guessing",
+    "id_subtécnica": "T1110.001",
+    "evidencia": [
+      "2 intentos fallidos SSH desde 203.0.113.200 hacia srv-auth-01 (10.10.20.20).",
+      "Usuarios observados: analyst."
+    ],
+    "recomendación_playbook": [
+      "Revisar logs de autenticación para confirmar si el intento fue aislado.",
+      "Correlacionar la IP origen con alertas recientes del laboratorio.",
+      "Aumentar monitoreo temporal sobre el usuario afectado.",
+      "Recomendar MFA si el usuario no lo tiene habilitado."
+    ],
+    "requiere_escalamiento": false,
+    "nivel_escalamiento": "No requerido",
+    "prioridad": "P4",
+    "urgencia": "Baja",
+    "justificación": "No cumple criterios de escalamiento automático del MVP.",
+    "eventos_relacionados": [
+      "ALR-SSH-0028",
+      "ALR-SSH-0029"
+    ],
+    "contexto_historico": {
+      "ip_origen_recurrente": false,
+      "usuarios_recurrentes": [
+        "analyst"
+      ],
+      "hostname_recurrente": true,
+      "incidentes_relacionados_previos": 2,
+      "incidentes_criticos_previos": 2,
+      "patron_repetido": false,
+      "resumen_contexto": "Se identifican 2 incidentes previos relacionados. 2 fueron críticos. Usuarios recurrentes: analyst. El hostname ya había sido observado previamente."
+    },
+    "analisis_qwen3_placeholder": {
+      "motor": "Qwen3",
+      "estado": "simulado",
+      "respuesta": "Integración futura: Qwen3 se utilizará como motor IA del agente para analizar contexto, enriquecer clasificación, sugerir playbooks y mejorar el razonamiento SOC.",
+      "capacidades_futuras": [
+        "analizar contexto histórico de alertas",
+        "generar recomendaciones explicadas",
+        "apoyar clasificación de incidentes",
+        "sugerir playbooks adaptados al riesgo",
+        "resumir evidencia para analistas SOC"
+      ],
+      "contexto_recibido": {
+        "id_alerta": "INC-SSH-007",
+        "tipo_detector": "ssh_authentication_aggregate",
+        "ip_origen": "203.0.113.200",
+        "hostname": "srv-auth-01"
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "El incidente de accesos no autorizados a SSH en srv-auth-01 con el IP 203.0.113.200 se produce con 2 intentos fallidos y una entrada de usuario recurrente. La severidad es baja, y no hay alertas previos similares.",
+      "hechos_observados": [
+        "2 intentos fallidos SSH desde 203.0.113.200 hacia srv-auth-01 (10.10.20.20).",
+        "Usuarios observados: analyst."
+      ],
+      "inferencias_razonables": [
+        "El incidente se basa en el uso de T1110 y T1110.001, técnicas de acceso bruto para credenciales.",
+        "El historial muestra que el hostname ya ha sido observado previamente y hay 2 incidentes críticos previos."
+      ],
+      "analisis_riesgo": "El riesgo es mitigado mediante monitoreo temporal y implementación de MFA. No hay evidencia de falsos positivos.",
+      "explicacion_mitre": "La táctica de acceso bruto y la técnica de brújula de credenciales identifican un ataque de fallas cognitivas.",
+      "uso_contexto_historico": "El contexto histórico refleja que hay patrones recurrentes de accesos no autorizados, lo que implica una evaluación continua.",
+      "recomendacion_soc": [
+        "Revisar logs de autenticación para confirmar si el intento fue aislado.",
+        "Aumentar monitoreo temporal sobre el usuario afectado.",
+        "Recomendar MFA si el usuario no lo tiene habilitado."
+      ],
+      "posibles_falsos_positivos": [
+        "No se incluyen datos de usuarios o hosts en el reporte.",
+        "No se incluyen técnicas o IDs MITRE ATT&CK."
+      ],
+      "siguiente_accion_sugerida": "Revisar alertas previas y ajustar el monitoreo según el comportamiento del usuario."
+    }
+  },
+  {
+    "id_alerta": "INC-SSH-008",
+    "timestamp": "2026-06-10T12:40:31Z",
+    "ip_origen": "198.51.100.120",
+    "ip_destino": "10.10.30.21",
+    "hostname": "srv-db-01",
+    "usuario": [
+      "oracle"
+    ],
+    "tipo_incidente": "Unauthorized Access Attempt",
+    "severidad": "Baja",
+    "táctica_mitre": "Credential Access",
+    "técnica_mitre": "Brute Force",
+    "id_técnica": "T1110",
+    "subtécnica_mitre": "Password Guessing",
+    "id_subtécnica": "T1110.001",
+    "evidencia": [
+      "1 intentos fallidos SSH desde 198.51.100.120 hacia srv-db-01 (10.10.30.21).",
+      "Usuarios observados: oracle."
+    ],
+    "recomendación_playbook": [
+      "Revisar logs de autenticación para confirmar si el intento fue aislado.",
+      "Correlacionar la IP origen con alertas recientes del laboratorio.",
+      "Aumentar monitoreo temporal sobre el usuario afectado.",
+      "Recomendar MFA si el usuario no lo tiene habilitado."
+    ],
+    "requiere_escalamiento": false,
+    "nivel_escalamiento": "No requerido",
+    "prioridad": "P4",
+    "urgencia": "Baja",
+    "justificación": "No cumple criterios de escalamiento automático del MVP.",
+    "eventos_relacionados": [
+      "ALR-SSH-0030"
+    ],
+    "contexto_historico": {
+      "ip_origen_recurrente": false,
+      "usuarios_recurrentes": [
+        "oracle"
+      ],
+      "hostname_recurrente": true,
+      "incidentes_relacionados_previos": 1,
+      "incidentes_criticos_previos": 1,
+      "patron_repetido": false,
+      "resumen_contexto": "Se identifican 1 incidentes previos relacionados. 1 fueron críticos. Usuarios recurrentes: oracle. El hostname ya había sido observado previamente."
+    },
+    "analisis_qwen3_placeholder": {
+      "motor": "Qwen3",
+      "estado": "simulado",
+      "respuesta": "Integración futura: Qwen3 se utilizará como motor IA del agente para analizar contexto, enriquecer clasificación, sugerir playbooks y mejorar el razonamiento SOC.",
+      "capacidades_futuras": [
+        "analizar contexto histórico de alertas",
+        "generar recomendaciones explicadas",
+        "apoyar clasificación de incidentes",
+        "sugerir playbooks adaptados al riesgo",
+        "resumir evidencia para analistas SOC"
+      ],
+      "contexto_recibido": {
+        "id_alerta": "INC-SSH-008",
+        "tipo_detector": "ssh_authentication_aggregate",
+        "ip_origen": "198.51.100.120",
+        "hostname": "srv-db-01"
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "Un ataque de acceso no autorizado se detectó mediante un intento de autenticación SSH en el IP 198.51.100.120. El incidente tiene una severidad baja y se relaciona con usuarios recurrentes oracle.",
+      "hechos_observados": [
+        "1 intento fallidos SSH desde 198.51.100.120 hacia srv-db-01 (10.10.30.21).",
+        "Usuarios observados: oracle."
+      ],
+      "inferencias_razonables": [
+        "Los datos de la evidencia reflejan un intento de acceso bruto, lo que indica un riesgo de acceso no autorizado. El contexto histórico muestra que oracle ha sido atacado previamente en incidentes similares."
+      ],
+      "analisis_riesgo": "El incidente presenta un riesgo de acceso a recursos críticos con técnicas de autenticación bruta. La correlación del IP con incidentes anteriores y la presencia de usuarios recurrentes indican un patrón de riesgo que requiere vigilancia continua.",
+      "explicacion_mitre": "La táctica de acceso bruto (T1110.001) con técnicas de autenticación (T1110) evidencia un ataque dirigido a credenciales principales del usuario oracle.",
+      "uso_contexto_historico": "El historial de incidentes anteriores relacionados con oracle y un hostname previo reflejan un patrón de riesgo que requiere detección activa en el entorno de laboratorio.",
+      "recomendacion_soc": [
+        "Revisar logs de autenticación para confirmar si el intento fue aislado.",
+        "Correlacionar la IP origen con alertas recientes del laboratorio.",
+        "Aumentar monitoreo temporal sobre el usuario afectado.",
+        "Recomendar MFA si el usuario no lo tiene habilitado."
+      ],
+      "posibles_falsos_positivos": [
+        "No disponible en el reporte."
+      ],
+      "siguiente_accion_sugerida": "Evaluar la implementación de monitoreo de redes y ajustar políticas de autenticación según los datos observados."
+    }
+  },
+  {
+    "id_alerta": "ALR-NET-0001",
+    "timestamp": "2026-06-10T13:15:22Z",
+    "ip_origen": "192.0.2.55",
+    "ip_destino": "10.10.50.23",
+    "hostname": "ws-analyst-07",
+    "usuario": "analyst",
+    "tipo_incidente": "Unknown Event",
+    "severidad": "Baja",
+    "táctica_mitre": "N/A",
+    "técnica_mitre": "N/A",
+    "id_técnica": "N/A",
+    "subtécnica_mitre": "N/A",
+    "id_subtécnica": "N/A",
+    "evidencia": [
+      "Evento recibido, pero no coincide con detectores activos del MVP.",
+      "Tipo original: network_connection."
+    ],
+    "recomendación_playbook": [
+      "Registrar el evento para análisis posterior.",
+      "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
+      "Mantener el evento en cola de triage de baja prioridad."
+    ],
+    "requiere_escalamiento": false,
+    "nivel_escalamiento": "No requerido",
+    "prioridad": "P4",
+    "urgencia": "Baja",
+    "justificación": "No cumple criterios de escalamiento automático del MVP.",
+    "eventos_relacionados": [
+      "ALR-NET-0001"
+    ],
+    "contexto_historico": {
+      "ip_origen_recurrente": false,
+      "usuarios_recurrentes": [
+        "analyst"
+      ],
+      "hostname_recurrente": false,
+      "incidentes_relacionados_previos": 2,
+      "incidentes_criticos_previos": 1,
+      "patron_repetido": false,
+      "resumen_contexto": "Se identifican 2 incidentes previos relacionados. 1 fueron críticos. Usuarios recurrentes: analyst."
+    },
+    "analisis_qwen3_placeholder": {
+      "motor": "Qwen3",
+      "estado": "simulado",
+      "respuesta": "Integración futura: Qwen3 se utilizará como motor IA del agente para analizar contexto, enriquecer clasificación, sugerir playbooks y mejorar el razonamiento SOC.",
+      "capacidades_futuras": [
+        "analizar contexto histórico de alertas",
+        "generar recomendaciones explicadas",
+        "apoyar clasificación de incidentes",
+        "sugerir playbooks adaptados al riesgo",
+        "resumir evidencia para analistas SOC"
+      ],
+      "contexto_recibido": {
+        "id_alerta": "ALR-NET-0001",
+        "tipo_detector": "sin_detector_activo",
+        "ip_origen": "192.0.2.55",
+        "hostname": "ws-analyst-07"
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "El incidente ALR-NET-0001 fue recibido con evidencia de un evento de conexión en red, con un nivel de prioridad P4 y justificación de no cumplir con criterios de escalamiento automático. No se identificaron técnicas o tácticas específicas.",
+      "hechos_observados": [
+        "Evento recibido, pero no coincide con detectores activos del MVP.",
+        "Tipo original: network_connection."
+      ],
+      "inferencias_razonables": [
+        "Basada en la existencia de un evento en red y en el contexto histórico de 2 incidentes previos relacionados.",
+        "No hay evidencia de tácticas o técnicas específicas en la incidencia."
+      ],
+      "analisis_riesgo": "El incidente es relevante con un evento en red no identificado, lo que sugiere posibles vulnerabilidades en el protocolo de conexión. No hay patrones repetidos en los incidentes previos.",
+      "explicacion_mitre": "No se identificaron técnicas o tácticas específicas del incidente.",
+      "uso_contexto_historico": "El contexto histórico muestra que hay 2 incidentes previos relacionados con conexiones en red, incluyendo un incidente crítico.",
+      "recomendacion_soc": [
+        "Registrar el evento para análisis posterior.",
+        "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
+        "Mantener el evento en cola de triage de baja prioridad."
+      ],
+      "posibles_falsos_positivos": [
+        "No se identificaron técnicas o tácticas específicas en la incidencia."
+      ],
+      "siguiente_accion_sugerida": "Revisar la implementación de protocolos de conexión en red para identificar posibles vulnerabilidades."
+    }
+  },
+  {
+    "id_alerta": "ALR-NET-0002",
+    "timestamp": "2026-06-10T13:32:08Z",
+    "ip_origen": "203.0.113.201",
+    "ip_destino": "10.10.50.23",
+    "hostname": "ws-analyst-07",
+    "usuario": "analyst",
+    "tipo_incidente": "Unknown Event",
+    "severidad": "Baja",
+    "táctica_mitre": "N/A",
+    "técnica_mitre": "N/A",
+    "id_técnica": "N/A",
+    "subtécnica_mitre": "N/A",
+    "id_subtécnica": "N/A",
+    "evidencia": [
+      "Evento recibido, pero no coincide con detectores activos del MVP.",
+      "Tipo original: dns_query."
+    ],
+    "recomendación_playbook": [
+      "Registrar el evento para análisis posterior.",
+      "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
+      "Mantener el evento en cola de triage de baja prioridad."
+    ],
+    "requiere_escalamiento": false,
+    "nivel_escalamiento": "No requerido",
+    "prioridad": "P4",
+    "urgencia": "Baja",
+    "justificación": "No cumple criterios de escalamiento automático del MVP.",
+    "eventos_relacionados": [
+      "ALR-NET-0002"
+    ],
+    "contexto_historico": {
+      "ip_origen_recurrente": false,
+      "usuarios_recurrentes": [
+        "analyst"
+      ],
+      "hostname_recurrente": true,
+      "incidentes_relacionados_previos": 3,
+      "incidentes_criticos_previos": 1,
+      "patron_repetido": false,
+      "resumen_contexto": "Se identifican 3 incidentes previos relacionados. 1 fueron críticos. Usuarios recurrentes: analyst. El hostname ya había sido observado previamente."
+    },
+    "analisis_qwen3_placeholder": {
+      "motor": "Qwen3",
+      "estado": "simulado",
+      "respuesta": "Integración futura: Qwen3 se utilizará como motor IA del agente para analizar contexto, enriquecer clasificación, sugerir playbooks y mejorar el razonamiento SOC.",
+      "capacidades_futuras": [
+        "analizar contexto histórico de alertas",
+        "generar recomendaciones explicadas",
+        "apoyar clasificación de incidentes",
+        "sugerir playbooks adaptados al riesgo",
+        "resumir evidencia para analistas SOC"
+      ],
+      "contexto_recibido": {
+        "id_alerta": "ALR-NET-0002",
+        "tipo_detector": "sin_detector_activo",
+        "ip_origen": "203.0.113.201",
+        "hostname": "ws-analyst-07"
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "El incidente ALR-NET-0002 ocurre en un entorno con baja prioridad, sin detectores activos y sin técnicas o tácticas mencionadas. El hostname ya ha sido observado previamente.",
+      "hechos_observados": [
+        "Evento recibido, pero no coincide con detectores activos del MVP.",
+        "Tipo original: dns_query."
+      ],
+      "inferencias_razonables": [
+        "El evento no coincide con detectores activos, lo que sugiere una situación inusual.",
+        "El hostname ha sido observado previamente, lo que resalta un patrón de repetición."
+      ],
+      "analisis_riesgo": "El evento ha sido registrado para análisis posterior, requiere revisión de detectores y manejamiento en cola.",
+      "explicacion_mitre": "El tipo de incidente no es reconocido, lo que sugiere una amenaza no identificada.",
+      "uso_contexto_historico": "El historial muestra 3 incidentes previos relacionados, uno crítico, con usuarios recurrentes y un hostname anterior observado.",
+      "recomendacion_soc": [
+        "Registrar el evento para análisis posterior.",
+        "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
+        "Mantener el evento en cola de triage de baja prioridad."
+      ],
+      "posibles_falsos_positivos": [
+        "No disponible en el reporte.",
+        "No disponible en el reporte."
+      ],
+      "siguiente_accion_sugerida": "El evento se registra en cola de triage de baja prioridad."
+    }
+  },
+  {
+    "id_alerta": "ALR-ENDPOINT-0001",
+    "timestamp": "2026-06-10T14:05:44Z",
+    "ip_origen": "198.51.100.130",
+    "ip_destino": "10.10.40.12",
+    "hostname": "srv-app-01",
+    "usuario": "admin",
+    "tipo_incidente": "Unknown Event",
+    "severidad": "Baja",
+    "táctica_mitre": "N/A",
+    "técnica_mitre": "N/A",
+    "id_técnica": "N/A",
+    "subtécnica_mitre": "N/A",
+    "id_subtécnica": "N/A",
+    "evidencia": [
+      "Evento recibido, pero no coincide con detectores activos del MVP.",
+      "Tipo original: powershell_activity."
+    ],
+    "recomendación_playbook": [
+      "Registrar el evento para análisis posterior.",
+      "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
+      "Mantener el evento en cola de triage de baja prioridad."
+    ],
+    "requiere_escalamiento": false,
+    "nivel_escalamiento": "No requerido",
+    "prioridad": "P4",
+    "urgencia": "Baja",
+    "justificación": "No cumple criterios de escalamiento automático del MVP.",
+    "eventos_relacionados": [
+      "ALR-ENDPOINT-0001"
+    ],
+    "contexto_historico": {
+      "ip_origen_recurrente": false,
+      "usuarios_recurrentes": [
+        "admin"
+      ],
+      "hostname_recurrente": true,
+      "incidentes_relacionados_previos": 4,
+      "incidentes_criticos_previos": 3,
+      "patron_repetido": false,
+      "resumen_contexto": "Se identifican 4 incidentes previos relacionados. 3 fueron críticos. Usuarios recurrentes: admin. El hostname ya había sido observado previamente."
+    },
+    "analisis_qwen3_placeholder": {
+      "motor": "Qwen3",
+      "estado": "simulado",
+      "respuesta": "Integración futura: Qwen3 se utilizará como motor IA del agente para analizar contexto, enriquecer clasificación, sugerir playbooks y mejorar el razonamiento SOC.",
+      "capacidades_futuras": [
+        "analizar contexto histórico de alertas",
+        "generar recomendaciones explicadas",
+        "apoyar clasificación de incidentes",
+        "sugerir playbooks adaptados al riesgo",
+        "resumir evidencia para analistas SOC"
+      ],
+      "contexto_recibido": {
+        "id_alerta": "ALR-ENDPOINT-0001",
+        "tipo_detector": "sin_detector_activo",
+        "ip_origen": "198.51.100.130",
+        "hostname": "srv-app-01"
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "El incidente alr-0001 fue recibido pero no coincidente con detectores actuales, con un tipo original powershell_activity. Contexto histórico muestra 4 incidentes previos con usuarios recurrentes y hostname observado.",
+      "hechos_observados": [
+        "Evento recibido, pero no coincide con detectores activos del MVP.",
+        "Tipo original: powershell_activity."
+      ],
+      "inferencias_razonables": [
+        "El evento no coincide con patrones históricos de incidentes críticos. No hay evidencia de técnicas o Mitre IDs específicos.",
+        "La prioridad baja sugiere escalamiento no necesario según el MVP"
+      ],
+      "analisis_riesgo": "El incidente tiene una severidad baja, lo que no exige escalabilidad automática. No hay patrones repetidos en los incidentes previos.",
+      "explicacion_mitre": "El evento es una actividad powershell, sin técnicas específicas o Mitre IDs. No hay evidencia de ataque previo.",
+      "uso_contexto_historico": "El contexto histórico refleja que hay 4 incidentes previos con usuarios recurrentes, lo que sugiere una nueva situación.",
+      "recomendacion_soc": [
+        "Registrar el evento para análisis posterior.",
+        "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
+        "Mantener el evento en cola de triage de baja prioridad."
+      ],
+      "posibles_falsos_positivos": [
+        "Hipótesis basada en patrones históricos o No disponible en el reporte."
+      ],
+      "siguiente_accion_sugerida": "El incidente no presenta riesgos elevados, así que no se requiere escalabilidad automática."
+    }
+  }
+]
