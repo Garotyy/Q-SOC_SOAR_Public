@@ -19,7 +19,7 @@ else:
 
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
-MODELO = "qwen3:0.6b"
+MODELO = "qwen2.5:3b"
 TIMEOUT_SEGUNDOS = 60
 CLAVES_RESPUESTA_QWEN3 = (
     "resumen_ejecutivo",
@@ -119,7 +119,16 @@ hechos_observados debe ser una lista de strings.
 inferencias_razonables debe ser una lista de strings.
 uso_contexto_historico debe explicar cómo influyó el historial.
 recomendacion_soc debe ser una lista de strings.
-posibles_falsos_positivos debe ser una lista de strings.
+posibles_falsos_positivos debe ser una lista de strings con al menos 1 elemento.
+Cada hipótesis debe derivarse directamente de la evidencia o el contexto_historico del reporte.
+Razona así: ¿podría este evento tener una explicación legítima? Considera:
+- Si hay intentos fallidos: ¿podría ser un usuario olvidando su contraseña?
+- Si hay login exitoso: ¿podría ser acceso legítimo no notificado al SOC?
+- Si hay transferencia de datos: ¿podría ser un proceso de backup programado?
+- Si hay PowerShell o procesos: ¿podría ser administración legítima del sistema?
+- Si hay DNS o red: ¿podría ser tráfico normal de la aplicación o resolución rutinaria?
+Usa solo los datos del reporte para justificar cada hipótesis. Si genuinamente no hay ninguna,
+escribe exactamente: ["No se identifican hipótesis de falso positivo basadas en la evidencia disponible."]
 
 Ejemplo de estructura obligatoria:
 {{
