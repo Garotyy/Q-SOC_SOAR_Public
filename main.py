@@ -16,6 +16,11 @@ from src.severity_engine import calcular_severidad
 from src.utils import DATA_DIR, cargar_json, guardar_json
 
 try:
+    from src.ml_predictor import predecir_incidente_ml
+except Exception:
+    predecir_incidente_ml = None
+
+try:
     from src.qwen_agent import analizar_con_qwen3 as analizar_con_qwen3_real
 except Exception:
     analizar_con_qwen3_real = None
@@ -23,6 +28,25 @@ except Exception:
 
 RUTA_ALERTAS = DATA_DIR / "alertas_simuladas.json"
 RUTA_REPORTES = DATA_DIR / "reportes_generados.json"
+
+
+def _intentar_prediccion_ml(incidente: dict, severidad: str) -> dict[str, Any]:
+    """Intenta enriquecer el reporte con ML sin interrumpir el MVP."""
+    if predecir_incidente_ml is None:
+        return {
+            "estado": "error",
+            "detalle": "No se pudo importar la capa ML de prediccion.",
+            "modelo": "DecisionTreeClassifier",
+        }
+
+    try:
+        return predecir_incidente_ml(incidente, severidad_calculada=severidad)
+    except Exception as error:
+        return {
+            "estado": "error",
+            "detalle": str(error),
+            "modelo": "DecisionTreeClassifier",
+        }
 
 
 def _intentar_analisis_qwen3_real(reporte: dict) -> dict[str, Any]:
@@ -82,6 +106,8 @@ def ejecutar_pipeline(imprimir: bool = True) -> list[dict]:
             escalamiento=escalamiento,
             analisis_qwen3_placeholder=analisis_qwen3_placeholder,
         )
+
+        reporte["prediccion_ml"] = _intentar_prediccion_ml(incidente, severidad)
 
         # Enriquecimiento de memoria: compara el reporte actual con los reportes
         # previos ya generados para que Qwen3 reciba contexto histórico.

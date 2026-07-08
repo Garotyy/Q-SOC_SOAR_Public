@@ -83,6 +83,26 @@ def entrenar_arbol_decision(
         random_state=random_state,
     )
 
+    pipeline = crear_pipeline_arbol_decision(random_state=random_state)
+    pipeline.fit(X_train, y_train)
+
+    predicciones = pipeline.predict(X_test)
+    metricas = _calcular_metricas(
+        y_test=y_test,
+        predicciones=predicciones,
+        columnas_entrenamiento=columnas_entrenamiento,
+        columnas_categoricas=COLUMNAS_CATEGORICAS,
+        columnas_numericas=COLUMNAS_NUMERICAS,
+        total_eventos=len(datos),
+        total_entrenamiento=len(X_train),
+        total_prueba=len(X_test),
+    )
+    _guardar_metricas(metricas, ruta_metricas)
+    return metricas
+
+
+def crear_pipeline_arbol_decision(random_state: int = RANDOM_STATE) -> Pipeline:
+    """Crea el pipeline reutilizable de preprocesamiento y arbol ML."""
     preprocesador = ColumnTransformer(
         transformers=[
             (
@@ -102,27 +122,12 @@ def entrenar_arbol_decision(
         class_weight="balanced",
     )
 
-    pipeline = Pipeline(
+    return Pipeline(
         steps=[
             ("preprocesador", preprocesador),
             ("modelo", modelo),
         ]
     )
-    pipeline.fit(X_train, y_train)
-
-    predicciones = pipeline.predict(X_test)
-    metricas = _calcular_metricas(
-        y_test=y_test,
-        predicciones=predicciones,
-        columnas_entrenamiento=columnas_entrenamiento,
-        columnas_categoricas=COLUMNAS_CATEGORICAS,
-        columnas_numericas=COLUMNAS_NUMERICAS,
-        total_eventos=len(datos),
-        total_entrenamiento=len(X_train),
-        total_prueba=len(X_test),
-    )
-    _guardar_metricas(metricas, ruta_metricas)
-    return metricas
 
 
 def _separar_features_objetivo(datos: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series, list[str]]:
