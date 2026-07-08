@@ -84,10 +84,12 @@ def _intentar_analisis_qwen3_real(reporte: dict) -> dict[str, Any]:
 
 
 def ejecutar_pipeline(imprimir: bool = True) -> list[dict]:
-    """Ejecuta el flujo completo de análisis SOAR-AI."""
+    """Ejecuta el flujo completo de análisis SOAR-AI con arquitectura Híbrida."""
     alertas = cargar_json(RUTA_ALERTAS)
     incidentes = detectar_incidentes(alertas)
     reportes = []
+
+    print(f"\nIniciando procesamiento de {len(incidentes)} incidentes...")
 
     for incidente in incidentes:
         tipo_incidente = clasificar_incidente(incidente)
@@ -96,6 +98,9 @@ def ejecutar_pipeline(imprimir: bool = True) -> list[dict]:
         recomendaciones = recomendar_playbook(tipo_incidente, severidad, incidente)
         escalamiento = evaluar_escalamiento(incidente, severidad)
         analisis_qwen3_placeholder = analizar_con_qwen3_placeholder(incidente)
+
+        # 1. Ejecutamos el cerebro matemático (Rápido)
+        prediccion_ml = _intentar_prediccion_ml(incidente, severidad)
 
         reporte = construir_reporte_incidente(
             incidente=incidente,
@@ -107,21 +112,44 @@ def ejecutar_pipeline(imprimir: bool = True) -> list[dict]:
             analisis_qwen3_placeholder=analisis_qwen3_placeholder,
         )
 
-        reporte["prediccion_ml"] = _intentar_prediccion_ml(incidente, severidad)
+        reporte["prediccion_ml"] = prediccion_ml
+        reporte["contexto_historico"] = construir_contexto_historico(reporte, reportes)
 
-        # Enriquecimiento de memoria: compara el reporte actual con los reportes
-        # previos ya generados para que Qwen3 reciba contexto histórico.
-        reporte["contexto_historico"] = construir_contexto_historico(
-            reporte, reportes
-        )
-        reporte["analisis_qwen3_real"] = _intentar_analisis_qwen3_real(reporte)
+# =================================================================
+        # LÓGICA TWO-STAGE (Con diseño Fail-Secure ante fallos de infraestructura)
+        # =================================================================
+        clase_ml = prediccion_ml.get("clase_predicha", "").lower() 
+        estado_ml = prediccion_ml.get("estado", "ok") # Revisamos si el ML reportó error
+
+        # Activamos Qwen si:
+        # 1. El ML explícitamente dice que es peligroso (sospechoso/fallido)
+        # 2. La severidad por reglas es alta/crítica
+        # 3. ¡NUEVO! La capa de ML falló (estado == "error"), por lo que requerimos respaldo de la IA
+        if estado_ml == "error" or clase_ml in ["sospechoso", "fallido"] or severidad in ["alta", "critica", "high", "critical"]:
+            
+            if estado_ml == "error":
+                print(f"⚠️ Capa ML falló. Activando Qwen como respaldo de seguridad (Fail-Secure)...")
+            else:
+                print(f"🧠 ML detectó riesgo ({clase_ml}). Despertando a Qwen para análisis profundo...")
+                
+            reporte["analisis_qwen3_real"] = _intentar_analisis_qwen3_real(reporte)
+            
+        else:
+            # Aquí solo entra si el ML funcionó correctamente Y determinó que es NORMAL
+            print(f"⚡ ML determinó que es NORMAL. Omitiendo Qwen para ahorrar recursos.")
+            reporte["analisis_qwen3_real"] = {
+                "estado": "omitido",
+                "motivo": "Filtrado en Etapa 1 (Machine Learning clasificó como NORMAL o Severidad Baja)",
+                "accion_sugerida": "PERMITIR"
+            }
+
         reportes.append(reporte)
 
     guardar_json(reportes, RUTA_REPORTES)
 
     if imprimir:
         imprimir_reporte(reportes)
-        print(f"\nReporte JSON guardado en: {RUTA_REPORTES}")
+        print(f"\nReporte JSON final guardado en: {RUTA_REPORTES}")
 
     return reportes
 

@@ -75,31 +75,58 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Alerta de intentos fallidos de autenticación SSH por parte de una misma IP origen contra múltiples usuarios.",
+      "resumen_ejecutivo": "Incidente de SSH Brute Force con múltiples usuarios atacados por la misma IP origen.",
       "hechos_observados": [
         "6 intentos fallidos SSH desde 203.0.113.45 hacia srv-web-01 (10.10.20.15).",
         "Usuarios observados: admin, backup, devops, root.",
         "La IP origen probó credenciales contra múltiples usuarios."
       ],
       "inferencias_razonables": [
-        "Intentos fallidos SSH pueden ser resultado de usuarios olvidando sus contraseñas.",
-        "Existen múltiples intentos con la misma IP origen, sugiriendo posibles atacantes experimentados.",
-        "Múltiples cuentas administrativas (admin, backup, devops, root) son objetivos frecuentes para ataques SSH bruteforce."
+        "Acceso fallido a la cuenta de usuario 'admin' debido al uso de una contraseña incorrecta o olvidada por parte del administrador.",
+        "Acceso fallido a la cuenta de usuario 'root' dado que es una cuenta privilegiada y usualmente se usan contraseñas fuertes.",
+        "La IP origen puede estar siendo utilizada como punto de entrada para una campaña de password spraying, intentando obtener credenciales válidas para múltiples cuentas."
       ],
-      "analisis_riesgo": "El tipo de incidente es Crítico debido a la cantidad de intentos y usuarios involucrados.",
-      "explicacion_mitre": "La táctica Mitre Tactic Credential Access está asociada con técnicas que buscan acceder a credenciales para obtener acceso en el sistema, como una parte de un ataque SSH bruteforce.",
-      "uso_contexto_historico": "No se identifican incidentes previos relacionados con esta IP origen o usuarios específicos. Sin embargo, la frecuencia y los múltiples intentos sugieren posibles ataques repetidos.",
+      "analisis_riesgo": "El incidente tiene un alto riesgo debido a la combinación de múltiples usuarios atacados y patrones repetitivos.",
+      "explicacion_mitre": "Esta situación es común en táctica MFA (Multi-Factor Authentication) donde se realiza prueba para confirmar credenciales proporcionadas por el usuario.",
+      "uso_contexto_historico": "No se identificaron incidentes previos relacionados con esta IP origen o usuarios, lo que sugiere un potencial ataque sospechoso.",
       "recomendacion_soc": [
         "Simular bloqueo temporal de la IP origen en controles perimetrales.",
         "Revisar logs de autenticación SSH en el host afectado.",
-        "Verificar si existieron accesos exitosos posteriores al patrón de fallos.",
         "Validar si los usuarios atacados usan contraseñas débiles o reutilizadas."
       ],
       "posibles_falsos_positivos": [
-        "Múltiples intentos fallidos SSH pueden ser resultado de usuarios olvidando sus contraseñas y autenticándose múltiples veces.",
-        "Existe posibilidad de que la IP origen sea parte de un sistema automatizado de prueba para sistemas vulnerables."
+        "Acceso fallido a una cuenta debido al uso de una contraseña incorrecta por parte del usuario.",
+        "Intento de acceso legítimo programado como parte del proceso de administración o mantenimiento del sistema."
       ],
-      "siguiente_accion_sugerida": "Se deben seguir las recomendaciones del playbook para mitigar el riesgo y monitorear los movimientos futuros en la red."
+      "siguiente_accion_sugerida": "Bloquear la IP origen y continuar vigilando para ver si se produce un login exitoso con estas credenciales sospechosas."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 0.9386,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 0.9386,
+        "sospechoso": 0.0614
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -181,30 +208,56 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de fuerza bruta SSH con múltiples usuarios atacados por la misma IP origen, siendo revisada una campaña de password spraying.",
+      "resumen_ejecutivo": "Incidente de fuerza bruta SSH con múltiples usuarios atacados por la misma IP origen, sugiriendo un análisis más detallado.",
       "hechos_observados": [
-        "5 intentos fallidos SSH desde 203.0.113.45 hacia srv-auth-01 (10.10.20.20).",
+        "5 intentos fallidos SSH desde 203.0113.45 hacia srv-auth-01 (10.10.20.20).",
         "Usuarios observados: admin, devops, root, soporte.",
         "La IP origen probó credenciales contra múltiples usuarios."
       ],
       "inferencias_razonables": [
-        "No se identifican hipótesis de falso positivo basadas en la evidencia disponible. Los intentos fallidos pueden ser parte del patrón de fuerza bruta SSH.",
-        "La IP origen aparece repetidamente (11 eventos) lo que sugiere una campaña sistemática o persistente."
+        "Podría ser un usuario olvidando su contraseña o acceso no notificado al SOC."
       ],
-      "analisis_riesgo": "El incidente tiene alta riesgo por la combinación de múltiples usuarios atacados y patrón repetido en la misma IP origen.",
-      "explicacion_mitre": "Este evento podría ser parte de una táctica de Credential Access utilizando técnicas de Brute Force con la subtecnica de Password Guessing, lo que corresponde a la Tactic 'Credential Access' (T1110) y Technique 'Password Guessing' (T1110.001).",
-      "uso_contexto_historico": "El historial indica patrones repetidos en la IP origen con múltiples usuarios atacados, lo que sugiere una campaña sistemática de fuerza bruta SSH.",
+      "analisis_riesgo": "El patrón de fuerza bruta y la presencia de múltiples usuarios atacados sugiere riesgos elevados.",
+      "explicacion_mitre": "La táctica T1110 (Credential Access) implica la fuerza bruta para obtener credenciales. La subtécnica T1110.001 (Password Guessing) implica intentos de autenticación con contraseñas.",
+      "uso_contexto_historico": "El historial identifica una IP origen recurrente y múltiples usuarios atacados, sugiriendo un riesgo persistente.",
       "recomendacion_soc": [
         "Simular bloqueo temporal de la IP origen en controles perimetrales.",
         "Revisar logs de autenticación SSH en el host afectado.",
-        "Verificar si existieron accesos exitosos posteriores al patrón de fallos.",
-        "Validar si los usuarios atacados usan contraseñas débiles o reutilizadas."
+        "Validar si los usuarios atacados usan contraseñas débiles o reutilizadas.",
+        "Forzar cambio de contraseña para cuentas comprometidas o de alto riesgo."
       ],
       "posibles_falsos_positivos": [
-        "Acceso legítimo no notificado al SOC que coincidiera con los patrones de SSH.",
-        "Fusión de eventos relacionados como parte del proceso normal del sistema"
+        "Acceso no notificado al SOC por parte del usuario que intenta la fuerza bruta SSH."
       ],
-      "siguiente_accion_sugerida": "Continuar el monitoreo y revisar logs para identificar accesos exitosos posteriores, lo cual puede ayudar a distinguir entre intentos fallidos legítimos y ataques sistemáticos."
+      "siguiente_accion_sugerida": "Validar logs para confirmar acceso legítimo o sospechoso desde esa IP origen."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 0.9386,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 0.9386,
+        "sospechoso": 0.0614
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -289,29 +342,57 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de fuerza bruta SSH con múltiples usuarios atacados por una IP origen repetidamente.",
+      "resumen_ejecutivo": "Incidente de fuerza bruta SSH con múltiples intentos fallidos desde una misma IP.",
       "hechos_observados": [
         "7 intentos fallidos SSH desde 198.51.100.77 hacia srv-db-01 (10.10.30.21).",
-        "Usuarios atacados: analyst, backup, devops, oracle, root.",
+        "Usuarios observados: analyst, backup, devops, oracle, root.",
         "La IP origen probó credenciales contra múltiples usuarios."
       ],
       "inferencias_razonables": [
-        "Los intentos fallidos de SSH pueden ser causados por un usuario que olvidó su contraseña o cometió un error humano al ingresar la clave.",
-        "Hay un patrón repetido con esta IP origen y estos usuarios, lo que sugiere una fuerza bruta potencialmente intencionada."
+        "El patrón de fuerza bruta SSH podría ser legítimo si los intentos son realizados por un usuario que olvida su contraseña y trata de recuperar el acceso.",
+        "Los usuarios recurrentes (backup, devops, root) podrían haber realizado estos intentos fallidos accidentalmente si fueron programados o automatizados sin notificación al SOC.",
+        "El patrón repetido podría indicar una campaña de fuerza bruta SSH que no ha tenido éxito hasta ahora."
       ],
-      "analisis_riesgo": "La fuerza bruta SSH involucra riesgos de ciberseguridad graves.",
-      "explicacion_mitre": "Esta táctica se utiliza para obtener acceso a cuentas de usuario confiables (Credential Access).",
-      "uso_contexto_historico": "El historial indica un patrón repetido con esta IP y estos usuarios, sugiriendo una posible campaña de fuerza bruta.",
+      "analisis_riesgo": "Se identificaron múltiples intentos fallidos de acceso SSH por parte de una misma IP y usuarios recurrentes.",
+      "explicacion_mitre": "Esta táctica busca obtener credenciales desprotegidas o comprometidas a través de métodos como fuerza bruta, contraseñas sospechosas, etc.",
+      "uso_contexto_historico": "Existe un patrón repetido de intentos fallidos SSH por parte de usuarios recurrentes en el sistema. Anteriormente ocurrieron dos incidentes de fuerza bruta con alta severidad.",
       "recomendacion_soc": [
-        "Simular bloqueo temporal de la IP origen en controles perimetrales.",
-        "Revisar logs de autenticación SSH en el host afectado.",
-        "Verificar si existieron accesos exitosos posteriores al patrón de fallos."
+        "Revisar logs de autenticación SSH y contraseñas de los usuarios atacados.",
+        "Validar si los usuarios atacados usan contraseñas débiles o reutilizadas.",
+        "Forzar cambio de contraseña para cuentas comprometidas o de alto riesgo."
       ],
       "posibles_falsos_positivos": [
-        "El usuario atacante podría haber olvidado su contraseña o cometido un error humano.",
-        "Hay acceso legítimo a los usuarios atacados que no ha sido notificado al SOC (por ejemplo, una sesión programada de backup)."
+        "Acceso programado por parte de un proceso no notificado al SOC (como backup, gestión del sistema o administración programada)."
       ],
-      "siguiente_accion_sugerida": "Validar si existieron accesos exitosos posteriores y reforzar las medidas de seguridad."
+      "siguiente_accion_sugerida": "Monitorear la actividad SSH y las contraseñas para identificar patrones de acceso sospechoso."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 0.9386,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 0.9386,
+        "sospechoso": 0.0614
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -384,33 +465,58 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de login sospechoso con intentos fallidos SSH y un login exitoso.",
+      "resumen_ejecutivo": "Incidente de intentos fallidos y login exitoso SSH sospechoso.",
       "hechos_observados": [
         "2 intentos fallidos SSH desde 192.0.2.44 hacia srv-app-01 (10.10.40.12).",
-        "Usuarios observados: soporte.",
-        "Se observó un login exitoso posterior para: soporte."
+        "Login exitoso observado para el usuario soporte.",
+        "Usuario recurrente en incidentes previos, sin registro de cambios recientes en su cuenta."
       ],
       "inferencias_razonables": [
-        "El usuario soporte podría estar olvidando su contraseña y habría intentado recuperar acceso.",
-        "Puede haber habido un intento legítimo de inicio de sesión por parte del usuario soporte que no fue notificado al SOC.",
-        "Puede ser un proceso programado de backup o administración normal del sistema.",
-        "Puede estar ocurriendo una auditoría o prueba de seguridad con los usuarios recurrentes.",
-        "Es posible que haya habido un intento legítimo de inicio de sesión y luego un cambio de contraseña por parte del usuario soporte."
+        "Podría haber sido un intento de acceso por parte de un empleado olvidando su contraseña.",
+        "El login exitoso podría ser un acceso no notificado al SOC.",
+        "Los usuarios recurrentes sin cambios son sospechosos de tener accesos sospechosos."
       ],
-      "analisis_riesgo": "El incidente sugiere un alto riesgo debido a los intentos fallidos seguidos de un login exitoso.",
-      "explicacion_mitre": "La táctica MIMIKatz (T1078) implica validar cuentas con fines de hacking.",
-      "uso_contexto_historico": "El usuario soporte es recurrente y ha tenido incidentes previos relacionados, aumentando el riesgo.",
+      "analisis_riesgo": "La consistencia de intentos fallidos seguidos por un login exitoso puede indicar una posible intrusion.",
+      "explicacion_mitre": "Valid Accounts (T1078) en Initial Access, sugiriendo que se está utilizando una cuenta existente para el acceso.",
+      "uso_contexto_historico": "El usuario recurrente 'soporte' ha mostrado actividad sospechosa previamente. La revisión de accesos exitosos debe ser priorizada.",
       "recomendacion_soc": [
-        "Validar la legitimidad del login exitoso.",
-        "Revisar el historial de acciones del usuario soporte para verificar actividades sospechosas.",
-        "Analizar el log de inicio de sesión para identificar patrones o anomalías.",
-        "Notificar al departamento de TI para revisión adicional si no se puede validar la legitimidad."
+        "Forzar cambio de contraseña si no se puede validar la legitimidad del login exitoso.",
+        "Notificar a un analista SOC para revisión manual.",
+        "Documentar decisiones y escalado necesario."
       ],
       "posibles_falsos_positivos": [
-        "El login exitoso podría haber sido un intento legítimo por parte del usuario soporte que ya había recuperado su contraseña.",
-        "Puede ser un proceso de administración programada o actividad de backup normal del sistema."
+        "Los intentos fallidos podrían ser resultado de usuarios que olvidaron sus contraseñas, lo cual no es una intrusión.",
+        "El login exitoso podría ser un acceso legítimo pero sin notificación al SOC."
       ],
-      "siguiente_accion_sugerida": "Revisar el historial de actividades de la cuenta soporte para confirmar si la última acción fue legítima."
+      "siguiente_accion_sugerida": "Continuar con el análisis para determinar la legitimidad del login exitoso y revisar accesos previos de usuarios recurrentes."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 0.6749,
+      "probabilidades": {
+        "normal": 0.3251,
+        "fallido": 0.6749,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -483,33 +589,58 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente sospechoso de login SSH con dos intentos fallidos seguidos de un acceso exitoso por parte del usuario backup, ocurrido en srv-web-01.",
+      "resumen_ejecutivo": "Incidente de intentos fallidos SSH seguidos de un login exitoso, sospechando manipulación del sistema.",
       "hechos_observados": [
-        "2 intentos fallidos SSH desde 198.51.100.88 hacia srv-web-01 (10.10.20.15).",
-        "Usuarios observados: backup.",
-        "Se observó un login exitoso posterior para: backup."
+        "2 intentos fallidos SSH desde la IP 198.51.100.88 hacia srv-web-01 (10.10.20.15).",
+        "Login exitoso con el usuario backup.",
+        "El usuario backup ha sido visto en otros incidentes previos."
       ],
       "inferencias_razonables": [
-        "El acceso legítimo por el usuario backup pudo ser accidental o de parte del administrador que no notificó al SOC.",
-        "El patrón de intentos fallidos podría indicar que el origen IP (198.51.100.88) es sospechoso, pero también puede tener una explicación legítima como un usuario olvidando su contraseña.",
-        "Se identifican 2 incidentes previos relacionados con login SSH por usuarios recurrentes sin notificación al SOC."
+        "El login exitoso podría ser una maniobra para justificar los intentos fallidos previos.",
+        "El usuario backup puede haber olvidado su contraseña y ejecutado SSH sin el conocimiento del SOC.",
+        "Hay un historial recurrente de actividad sospechosa desde esta IP con este usuario."
       ],
-      "analisis_riesgo": "Incidente crítico debido a las múltiples acciones sospechosas y el patrón de intentos fallidos seguidos de un acceso exitoso.",
-      "explicacion_mitre": "La táctica MIR3070 (Valid Accounts) está en acción con dos intentos fallidos SSH seguidos de un login exitoso por parte del usuario backup.",
-      "uso_contexto_historico": "Se identifican 2 incidentes previos relacionados. El patrón de intentos fallidos para el mismo origen IP y acceso por usuarios recurrentes sugiere una posible actividad sospechosa que aún no ha sido notificada al SOC.",
+      "analisis_riesgo": "El login exitoso aumenta la probabilidad de que los intentos fallidos no fueran coincidencias.",
+      "explicacion_mitre": "Esta táctica se utiliza para validar cuentas sospechosas o maliciosas.",
+      "uso_contexto_historico": "El historial indica un patrón recurrente de actividad sospechosa desde esta IP con este usuario, lo que aumenta la probabilidad de manipulación del sistema.",
       "recomendacion_soc": [
-        "Forzar un cambio de contraseña en la cuenta backup si es necesaria o solicitar a la persona afectada que lo haga.",
-        "Verificar y documentar el acceso legítimo por parte del usuario backup sin activar alertas adicionales.",
-        "Revisar los comandos ejecutados después de cada login exitoso para identificar cualquier actividad sospechosa.",
-        "Buscar cambios en archivos SSH, persistencia de cuentas o la creación de nuevas cuentas sospechosas.",
-        "Notificar a un analista SOC para revisión manual y documentar decisiones.",
-        "Documentar la decisión de no escalado por falta de evidencia suficiente para una intervención más severa."
+        "Verificar el cambio de contraseña de la cuenta backup con el dueño de la cuenta.",
+        "Revisar los comandos ejecutados después del login exitoso.",
+        "Buscar actividades persistencia y cambios en SSH o usuarios.",
+        "Notificar a un analista SOC para revisión manual."
       ],
       "posibles_falsos_positivos": [
-        "El acceso exitoso fue resultado accidental del usuario olvidando su contraseña o un error humano.",
-        "Las dos fallas SSH fueron acciones legítimas realizadas por el usuario backup sin notificar al SOC."
+        "El usuario backup podría estar utilizando un script de administración que no fue notificado al SOC."
       ],
-      "siguiente_accion_sugerida": "Forzar un cambio de contraseña en la cuenta backup si es necesario, para asegurar seguridad del sistema."
+      "siguiente_accion_sugerida": "Forzar el cambio de contraseña y verificar si es legítimo con el dueño de la cuenta backup."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 0.6749,
+      "probabilidades": {
+        "normal": 0.3251,
+        "fallido": 0.6749,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -578,32 +709,57 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de intento no autorizado de acceso SSH con patrones recurrentes y baja severidad.",
+      "resumen_ejecutivo": "Incidente de intento no autorizado SSH con baja severidad y no requiere escalamiento.",
       "hechos_observados": [
-        "3 intentos fallidos SSH desde la IP origen 192.0.2.14 hacia el host srv-app-01 (10.10.40.12).",
-        "El usuario observado fue soporte."
+        "3 intentos fallidos SSH desde la IP 192.0.2.14 hacia el host srv-app-01 (10.10.40.12).",
+        "El usuario observado es 'soporte'."
       ],
       "inferencias_razonables": [
-        "Podría ser un usuario olvidando su contraseña de SSH.",
-        "Puede que haya un acceso legítimo no notificado al SOC, tal como intentos de actualización o administración del sistema.",
-        "El hostname srv-app-01 ha sido observado previamente en incidentes relacionados, sugiriendo patrones recurrentes.",
-        "No se identifican hipótesis de falso positivo basadas en la evidencia disponible."
+        "Podría ser un usuario olvidando su contraseña.",
+        "Puede haber sido un intento no notificado de acceso SSH legítimo, como puede ser una actividad habitual o un error humano.",
+        "El uso recurrente del usuario 'soporte' en múltiples incidentes sugiere actividades normales del usuario."
       ],
-      "analisis_riesgo": "Se considera como incidente con baja severidad debido a los intentos fallidos de acceso SSH y usuarios recurrentes.",
-      "explicacion_mitre": "El evento se clasifica bajo Credential Access (Tactic) y Password Guessing (Technique).",
-      "uso_contexto_historico": "Se ha identificado que el usuario soporte ha tenido una actividad recurrente, incluyendo intentos de acceso SSH. El hostname srv-app-01 también ha sido observado en incidentes previos.",
+      "analisis_riesgo": "El evento tiene una baja severidad y no requiere escalamiento.",
+      "explicacion_mitre": "La táctica MFA (Multi-Factor Authentication) es relevante dado el uso recurrente de los usuarios.",
+      "uso_contexto_historico": "Los incidentes previos relacionados con 'soporte' han sido menores, lo que sugiere un patrón recurrente de acceso SSH fallido.",
       "recomendacion_soc": [
-        "Revisar logs de autenticación para confirmar si el intento fue aislado.",
+        "Revisar logs de autenticación para confirmar la aislabilidad del intento. ",
         "Correlacionar la IP origen con alertas recientes del laboratorio.",
-        "Aumentar monitoreo temporal sobre el usuario afectado.",
-        "Recomendar MFA si el usuario no lo tiene habilitado."
+        "Aumentar monitoreo temporal sobre el usuario afectado si no se demuestra que fue un intento solitario."
       ],
       "posibles_falsos_positivos": [
-        "Acceso legítimo normal a través de SSH.",
-        "Actualizaciones programadas del sistema que puedan generar intentos fallidos",
-        "Acceso por parte de un usuario con permisos administrativos accidentalmente o de forma no notificada al SOC."
+        "Podría ser un acceso SSH legítimo por parte de 'soporte', debido a un error humano o una contraseña olvidada.",
+        "El evento podría ser parte del ciclo normal de trabajo del usuario, con múltiples intentos fallidos."
       ],
-      "siguiente_accion_sugerida": "Implementar monitoreo y recomendación MFA en caso de patrones recurrentes para mejorar seguridad sin afectar la funcionalidad legítima del sistema."
+      "siguiente_accion_sugerida": "Aumentar monitoreo para confirmar si el evento es recurrente y no un simple fallo humano. "
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 0.9386,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 0.9386,
+        "sospechoso": 0.0614
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -671,29 +827,58 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de intento no autorizado SSH sospechoso.",
+      "resumen_ejecutivo": "Incidente sospechoso de acceso no autorizado a una máquina SSH.",
       "hechos_observados": [
-        "2 intentos fallidos SSH desde la IP origen 203.0.113.200 hacia el host srv-auth-01 (10.10.20.20).",
-        "El usuario observado fue analyst.",
-        "El hostname 'srv-auth-01' ha sido observado previamente en incidentes similares."
+        "2 intentos fallidos SSH desde la IP 203.0.113.200 hacia el servidor srv-auth-01 (10.10.20.20).",
+        "El usuario observado es analyst.",
+        "No se identifican hipótesis de falso positivo basadas en la evidencia disponible."
       ],
       "inferencias_razonables": [
-        "Las IP de origen recurrente y el uso de la cuenta de 'analyst' sugieren que esto podría ser un intento no autorizado legítimo.",
-        "El historial indica que este usuario ha sido visto antes en incidentes similares, lo cual puede llevar a una interpretación de repetición normal.",
-        "Puede haber ocurrido un cambio en la configuración de autenticación de 'analyst' que llevó a estos intentos fallidos."
+        "Podría ser un intento fallido por parte del usuario analyst, olvidando su contraseña o no recordando correctamente el puerto SSH.",
+        "No se identifican hipótesis de falso positivo basadas en la evidencia disponible."
       ],
-      "analisis_riesgo": "El riesgo es bajo debido al historial recurrente de actividad del usuario analyst y el carácter repetitivo de los intentos.",
-      "explicacion_mitre": "La táctica 'Credential Access' implica técnicas como la fuerza bruta para obtener contraseñas. En este caso's, se ha observado una técnica T1110.001 (Password Guessing).",
-      "uso_contexto_historico": "El historial de actividad del usuario analyst y el hostname srv-auth-01 sugiere que estos intentos pueden ser repetitivos e informales en lugar de intenciones maliciosas.",
+      "analisis_riesgo": "El incidente es de baja severidad y ya ha sido observado previamente sin implicar riesgos significativos.",
+      "explicacion_mitre": "La táctica MFA (Multi-Factor Authentication) está siendo interceptada por el atacante con un intento fallido.",
+      "uso_contexto_historico": "Se han identificado dos incidentes relacionados previos, ninguno críticos. El usuario analyst ha sido afectado anteriormente sin implicar riesgos significativos para el sistema.",
       "recomendacion_soc": [
-        "Aumentar monitoreo sobre la cuenta de 'analyst' para identificar cualquier cambio en su actividad normal.",
-        "Correlacionar la IP origen con otros registros de seguridad para confirmar si es una anomalía reciente o un comportamiento recurrente.",
-        "Ofrecer capacitación al usuario analyst sobre las precauciones necesarias para proteger sus credenciales SSH."
+        "Revisar logs de autenticación para confirmar si el intento fue aislado.",
+        "Correlacionar la IP origen con alertas recientes del laboratorio.",
+        "Aumentar monitoreo temporal sobre el usuario analyst.",
+        "Recomendar MFA si el usuario no lo tiene habilitado."
       ],
       "posibles_falsos_positivos": [
-        "Acciones legítimas no notificadas como el cambio de configuración de autenticación de 'analyst'."
+        "El intento fallido podría ser un intento de acceso por parte de un atacante malintencionado, pero sin evidencia clara que indique riesgo significativo.",
+        "No se identifican hipótesis de falso positivo basadas en la evidencia disponible."
       ],
-      "siguiente_accion_sugerida": "Implementar un proceso que permita identificar y notificar cambios sospechosos en la actividad del usuario analyst."
+      "siguiente_accion_sugerida": "El SOC recomienda reforzar el monitoreo y, si necesario, implementar MFA para el usuario analyst."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 0.6749,
+      "probabilidades": {
+        "normal": 0.3251,
+        "fallido": 0.6749,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -760,28 +945,37 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de intento fallido de acceso no autorizado SSH desde una nueva IP origen.",
-      "hechos_observados": [
-        "1 intentos fallidos SSH desde 198.51.100.120 hacia srv-db-01 (10.10.30.21).",
-        "Usuarios observados: oracle."
+      "estado": "omitido",
+      "motivo": "Filtrado en Etapa 1 (Machine Learning clasificó como NORMAL o Severidad Baja)",
+      "accion_sugerida": "PERMITIR"
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "normal",
+      "confianza": 0.9491,
+      "probabilidades": {
+        "normal": 0.9491,
+        "fallido": 0.0509,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
       ],
-      "inferencias_razonables": [
-        "El acceso a Oracle podría ser legítimo, dado que es un usuario recurrente con actividad previa.",
-        "Los intentos fallidos podrían indicar una tentativa de recuperación de contraseña por parte del usuario.",
-        "No se identifican hipótesis de falso positivo basadas en la evidencia disponible."
-      ],
-      "analisis_riesgo": "El riesgo es bajo debido a la baja severidad y los datos recientes.",
-      "explicacion_mitre": "Este incidente está relacionado con el ataque por credenciales (Credential Access) utilizando técnicas de aceleración de contraseñas (Brute Force).",
-      "uso_contexto_historico": "El usuario 'oracle' ha tenido actividad previa, lo que hace más probable una interpretación legítima del evento.",
-      "recomendacion_soc": [
-        "Correlacionar la IP origen con alertas recientes para confirmar si el intento fue aislado.",
-        "Monitorear temporalmente el usuario 'oracle' por futuras actividades sospechosas.",
-        "Verificar que MFA no esté habilitado y, en caso de ser así, recomendarlo."
-      ],
-      "posibles_falsos_positivos": [
-        "El acceso podría estar relacionado con una recuperación de contraseña legítima por parte del usuario 'oracle'."
-      ],
-      "siguiente_accion_sugerida": "Continuar monitorización y posible recomendaciones a los administradores."
+      "estado": "ok"
     }
   },
   {
@@ -850,30 +1044,37 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Alerta de actividad red con baja severidad y alta prioridad para revisión.",
-      "hechos_observados": [
-        "2 conexión(es) de red detectadas desde 192.0.2.55 (ws-analyst-07).",
-        "Servicios: http.",
-        "Destinos: 10.10.50.23, 198.51.100.200.",
-        "Resultados observados: bloqueado, permitido."
+      "estado": "omitido",
+      "motivo": "Filtrado en Etapa 1 (Machine Learning clasificó como NORMAL o Severidad Baja)",
+      "accion_sugerida": "PERMITIR"
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "normal",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 1.0,
+        "fallido": 0.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
       ],
-      "inferencias_razonables": [
-        "Es posible que se trate de acceso legítimo no notificado al SOC por parte del usuario 'analyst'.",
-        "El uso frecuente del host 'ws-analyst-07' y del usuario 'analyst' podría indicar un patrón habitual.",
-        "Puede haber dos eventos previos relacionados con el mismo usuario, uno crítico."
-      ],
-      "analisis_riesgo": "Alerta de actividad red con baja severidad pero alta prioridad debido a frecuencia y usuarios recurrentes.",
-      "explicacion_mitre": "Este incidente se asocia con la táctica MIRANDA (Discovery) y la técnica T1046 (Servicios de red descubiertos).",
-      "uso_contexto_historico": "El historial muestra que 'analyst' ha tenido actividad en este host en dos ocasiones previas, una de ellas crítica. Esto sugiere un patrón recurrente y requiere revisión.",
-      "recomendacion_soc": [
-        "Registrar el evento para análisis posterior.",
-        "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
-        "Mantener el evento en cola de triage de baja prioridad."
-      ],
-      "posibles_falsos_positivos": [
-        "Acceso legítimo no notificado al SOC por parte del usuario 'analyst'."
-      ],
-      "siguiente_accion_sugerida": "Continuar con la revisión basada en el historial y prioridad de la alerta."
+      "estado": "ok"
     }
   },
   {
@@ -939,29 +1140,37 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de DNS Query Observed con baja severidad y alta probabilidad de ser un evento no malicioso.",
-      "hechos_observados": [
-        "1 consulta(s) DNS desde ip_origen: 203.0.113.201 (ws-analyst-07).",
-        "Destinos de resolución: 10.10.50.23."
+      "estado": "omitido",
+      "motivo": "Filtrado en Etapa 1 (Machine Learning clasificó como NORMAL o Severidad Baja)",
+      "accion_sugerida": "PERMITIR"
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "normal",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 1.0,
+        "fallido": 0.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
       ],
-      "inferencias_razonables": [
-        "El usuario 'analyst' ya había sido observado previamente en el sistema.",
-        "Este evento podría ser parte del rango normal de actividades DNS realizadas por el servidor analista-07.",
-        "No hay evidencia suficiente para sospechar un intento malicioso."
-      ],
-      "analisis_riesgo": "El riesgo asociado con este incidente es bajo debido a su baja severidad y baja probabilidad de ser una actividad no autorizada.",
-      "explicacion_mitre": "Esta actividad se enmarca dentro de la táctica Discovery, con técnicas de red service discovery como DNS consulta para descubrir servicios disponibles en redes externas.",
-      "uso_contexto_historico": "Se identifican tres incidentes previos relacionados. Uno fue crítico y el usuario 'analyst' ya había sido observado antes por el SOC, lo cual sugiere un patrón de actividad recurrente del mismo usuario.",
-      "recomendacion_soc": [
-        "Registrar el evento para analizar cualquier cambios en el futuro.",
-        "Continuar la vigilancia con baja prioridad para mantener un registro de actividades DNS.",
-        "No tomar medidas inmediatas ya que no hay suficiente evidencia de actividad sospechosa."
-      ],
-      "posibles_falsos_positivos": [
-        "El usuario 'analyst' podría haber hecho una consulta DNS normal en el contexto de su trabajo o por error al ejecutar un script.",
-        "Hay un patrón recurrente del usuario que podría explicar las actividades observadas, no demostrando ninguna actividad sospechosa."
-      ],
-      "siguiente_accion_sugerida": "Mantener la alerta en cola de triage con baja prioridad y registrar cualquier cambio futuro para futuras consultas o análisis."
+      "estado": "ok"
     }
   },
   {
@@ -1032,31 +1241,37 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente detecta actividad sospechosa relacionada con Endpoint Compromise y ejecución de comandos.",
-      "hechos_observados": [
-        "4 eventos de endpoint en srv-app-01 por usuario admin.",
-        "Actividad PowerShell detectada: posible ejecución de payload.",
-        "Creación de procesos sospechosos detectada.",
-        "Acceso a archivos sensibles o creación de staging detectada."
+      "estado": "omitido",
+      "motivo": "Filtrado en Etapa 1 (Machine Learning clasificó como NORMAL o Severidad Baja)",
+      "accion_sugerida": "PERMITIR"
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "normal",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 1.0,
+        "fallido": 0.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
       ],
-      "inferencias_razonables": [
-        "Hay actividad administrativa no notificada al SOC en el sistema srv-app-01 por parte del usuario admin.",
-        "La combinación de PowerShell y procesos sospechosos sugiere ejecución remota o persistencia, aunque podría ser legítimo. Por ejemplo, un proceso de administración normal como SQL Server Management Studio (SSMS) puede generar este tipo de actividad.",
-        "El patrón recurrente de usuarios admin en el sistema srv-app-01 es sospechoso."
-      ],
-      "analisis_riesgo": "La actividad observada no representa un riesgo significativo, pero su comportamiento recurrente y la combinación de técnicas y herramientas utilizadas son preocupantes.",
-      "explicacion_mitre": "Los datos sugieren una posibilidad dentro del escenario Execution (Ejecución) con una técnica relacionada con comandos e interpretadores (T1059) usando PowerShell (T1059.001).",
-      "uso_contexto_historico": "El histórico de incidentes revela que los usuarios admin han sido recurrentes en el sistema srv-app-01, y anteriormente se registraron eventos sospechosos. El patrón repetido sugiere un riesgo.",
-      "recomendacion_soc": [
-        "Registrar el evento para análisis posterior.",
-        "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
-        "Mantener el evento en cola de triage de baja prioridad."
-      ],
-      "posibles_falsos_positivos": [
-        "El acceso administrativo legítimo podría haber sido causado por un proceso de backup programado o una operación de administración normal del sistema.",
-        "La actividad PowerShell podría estar asociada a un proceso de administración normal como SSMS."
-      ],
-      "siguiente_accion_sugerida": "Registrar el evento para análisis posterior en busca de evidencias adicionales que puedan confirmar si la actividad es legítima o potencialmente maliciosa."
+      "estado": "ok"
     }
   },
   {
@@ -1137,33 +1352,61 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de intentos fallidos SSH y login exitoso con patrones sospechosos.",
+      "resumen_ejecutivo": "Se ha observado un incidente sospechoso de acceso SSH con múltiples intentos fallidos y un login exitoso. Se recomienda una evaluación exhaustiva para determinar la legitimidad del evento.",
       "hechos_observados": [
         "4 intentos fallidos SSH desde 185.220.101.12 hacia srv-web-01 (10.10.20.15).",
         "Usuarios observados: admin, deploy, jenkins, root.",
-        "Se observó un login exitoso posterior para: deploy.",
-        "IP origen repetida en múltiples eventos anteriores."
+        "La IP origen probó credenciales contra múltiples usuarios.",
+        "Se observó un login exitoso posterior para: deploy."
       ],
       "inferencias_razonables": [
-        "El login exitoso de 'deploy' podría ser acceso legítimo no notificado al SOC, como una acción normal del sistema o un proceso programado.",
-        "Los intentos fallidos pueden indicar que el atacante estaba probando credenciales, lo cual puede ser normal en exploración de vulnerabilidades.",
-        "La IP origen repetida indica posible compromiso o actividad sospechosa persistente desde esa dirección.",
-        "El login exitoso posterior a múltiples intentos fallidos podría sugerir que el atacante había logrado acceder con éxito y ahora estaba usando un usuario conocido para continuar la exploración."
+        "El login exitoso de 'deploy' podría ser accidental si el usuario olvidó su contraseña, o puede estar relacionado con una actividad sospechosa no notificada al SOC.",
+        "Los múltiples intentos fallidos desde la misma IP origen pueden indicar un ataque de password spraying contra los usuarios recurrentes (admin y root).",
+        "Es posible que el evento sea legítimo si se trata de un proceso programado como un backup o administración del sistema. No se identifican hipótesis de falso positivo basadas en la evidencia disponible."
       ],
-      "analisis_riesgo": "Se detectaron patrones de actividad sospechosa, incluyendo intentos fallidos y login exitoso en múltiples eventos.",
-      "explicacion_mitre": "La táctica MIRTe: Valid Accounts se ve confirmada con los intentos fallidos SSH y el login exitoso posterior.",
-      "uso_contexto_historico": "El historial indica un comportamiento sospechoso desde la misma IP origen, junto con múltiples usuarios recurrentes (admin y root). El sistema ha experimentado incidentes críticos previamente relacionados con este grupo de usuarios.",
+      "analisis_riesgo": "El incidente implica múltiples intentos fallidos y un login exitoso, lo que aumenta el riesgo de compromiso.",
+      "explicacion_mitre": "La táctica Mitre T1078 (Valid Accounts) se aplica a este incidente con la técnica subtecnica T1110.001 (Password Spraying).",
+      "uso_contexto_historico": "El usuario 'deploy' ya había tenido acceso exitoso previamente, y la IP origen ha mostrado actividad sospechosa en múltiples incidentes relacionados. Esto sugiere que podría tratarse de un ataque de password spraying.",
       "recomendacion_soc": [
-        "Verificar si el login exitoso fue legítimo con el dueño de la cuenta 'deploy'.",
-        "Revisar comandos ejecutados después del acceso para identificar acciones sospechosas.",
-        "Evaluación de la persistencia en el sistema, incluyendo cambios de llaves SSH o creación de usuarios.",
-        "Forzar cambio de contraseña si no se puede validar legítimo el login exitoso."
+        "Verificar el login exitoso del 'deploy' con el dueño de la cuenta.",
+        "Revisar los comandos ejecutados después del acceso.",
+        "Buscar cualquier persistencia o actividad sospechosa en nuevos hosts o usuarios.",
+        "Forzar cambios de contraseña si no se puede validar la legitimidad.",
+        "Notificar a un analista SOC para revisión manual."
       ],
       "posibles_falsos_positivos": [
-        "El login exitoso pudo ser causado por un acceso normal del sistema, como un proceso programado para backup o administrativo.",
-        "Los intentos fallidos podrían ser provocados por un usuario olvidando su contraseña o por una exploración de vulnerabilidades legítima."
+        "El login exitoso podría ser accidental debido al olvido de una contraseña legítima o por parte de un proceso programado como backup.",
+        "Los múltiples intentos fallidos podrían estar causados por un ataque de password spraying contra los usuarios recurrentes."
       ],
-      "siguiente_accion_sugerida": "Notificar a un analista SOC para revisión manual y documentar la decisión de escalamiento en caso necesario."
+      "siguiente_accion_sugerida": "Forzar cambios de contraseña para el usuario 'deploy' si no se puede validar su legitimidad y notificar a la seguridad al SOC."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 0.9386,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 0.9386,
+        "sospechoso": 0.0614
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -1236,31 +1479,59 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Alerta de conexión sospechosa desde la dirección IP 10.10.20.15 hacia 10.10.30.21.",
+      "resumen_ejecutivo": "Alerta de conexión sospechosa desde IP 10.10.20.15 (srv-web-01) con múltiples servicios: ftp, https, smb.",
       "hechos_observados": [
-        "Se registraron tres conexiones de red desde 10.10.20.15 (srv-web-01).",
-        "Servicios afectados: ftp, https, smb.",
-        "El destino principal es 10.10.30.21, con otros dos destinos: 185.220.101.12 y 198.51.100.88.",
-        "Los resultados de las conexiones fueron detectadas y permitidas.",
-        "Hay uso inusual de protocolos como ftp y smb."
+        "3 conexiones de red detectadas desde 10.10.20.15",
+        "Servicios: ftp, https, smb",
+        "Destino: 10.10.30.21, 185.220.101.12, 198.51.100.88",
+        "Resultados observados: detectado, permitido"
       ],
       "inferencias_razonables": [
-        "El uso de FTP y SMB puede ser legítimo si hay un proceso programado en el sistema (como backups o consultas a bases de datos).",
-        "Otro usuario recurrente del sistema, como 'backup' o 'deploy', podría estar operando.",
-        "Se ha identificado patrones repetidos en la dirección IP 10.10.20.15 y usuarios que utilizan el servidor."
+        "Existe repetición de IP origen (srv-web-01) en incidentes previos.",
+        "Usuarios recurrentes 'backup' y 'deploy' son sospechosos",
+        "El evento se repite a través de múltiples servicios como ftp, https y smb"
       ],
-      "analisis_riesgo": "Alerta de bajo riesgo, pero con una posible actividad recurrente.",
-      "explicacion_mitre": "Este incidente está asociado a la táctica M3: Command and Control (C2) mediante la técnica T1071: Exploit Publicly Available Software (EPAWS).",
-      "uso_contexto_historico": "Se ha observado una actividad recurrente de estos usuarios en el sistema, así como conexiones similares a esta dirección IP. Anteriormente se reportaron cuatro incidentes relacionados con este tipo de actividad.",
+      "analisis_riesgo": "Alerta con severidad baja pero repeticion constante de usuarios.",
+      "explicacion_mitre": "Tactic: Command and Control, Technique: Application Layer Protocol (FTP/SMB).",
+      "uso_contexto_historico": "Incidentes relacionados previos y usuarios recurrentes sugieren sospecha.",
       "recomendacion_soc": [
-        "Registrar la alerta para análisis posterior.",
-        "Evaluar si existe un detector existente que pueda aplicarse o si es necesario crear uno nuevo.",
-        "Mantener la alerta en cola de triage como una incidencia de baja prioridad."
+        "Registrar el evento para análisis posterior",
+        "Revisar si existen protocolos aplicables o se requiere crear nuevos",
+        "Mantener el evento en cola de triage con baja prioridad"
       ],
       "posibles_falsos_positivos": [
-        "Uso legítimo de protocolos como FTP y SMB por un proceso programado (backup o consulta a base de datos)."
+        "Existe riesgo de false positives por repetición constante de usuarios y servicios.",
+        "Puede haber un proceso de backup programado usando estos servicios."
       ],
-      "siguiente_accion_sugerida": "Registrar la alerta para análisis posterior mientras se revisa si existe un detector existente que pueda aplicarse."
+      "siguiente_accion_sugerida": "Mantener el evento en cola de triage, considerar implementación de políticas de acceso para los usuarios recurrentes"
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 1.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -1330,28 +1601,58 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de Endpoint Compromise por ejecución sospechosa, clasificado como baja severidad.",
+      "resumen_ejecutivo": "Incidente de ejecución remota sospechosa en host srv-web-01 por usuario deploy desde IP origen 10.10.20.15, con alta probabilidad de administración no autorizada.",
       "hechos_observados": [
-        "3 eventos del endpoint en srv-web-01 por usuario deploy",
-        "Actividad PowerShell detectada",
-        "Creación de procesos sospechosos"
+        "3 eventos de endpoint detectados en servidor web srv-web-01 por usuario deploy",
+        "actividad file_access y powershell_activity",
+        "creación de procesos sospechosos y accesos a archivos sensibles"
       ],
       "inferencias_razonables": [
-        "Existencia de usuarios recurrentes que podrían estar realizando tareas programadas.",
-        "Combinación de actividad PowerShell y creación de procesos sospechosos sugiere ejecución remota o persistencia."
+        "No se identifican hipótesis de falso positivo basadas en la evidencia disponible.",
+        "El usuario deploy podría estar ejecutando acciones administrativas no notificadas al SOC.",
+        "Se identifica patrón recurrente de IP origen 10.10.20.15, lo que sugiere actividades sospechosas previas."
       ],
-      "analisis_riesgo": "El evento tiene una alta probabilidad de ser un ataque de compromiso del endpoint, dado el historial recurrente de la IP origen.",
-      "explicacion_mitre": "La táctica Execution implica ejecutar comandos o scripts en una máquina objetivo. Técnica T1059 especifica el uso de interpretadores de comandos y shell para ejecutar tareas remotas.",
-      "uso_contexto_historico": "El historial muestra que la IP origen es recurrente, los usuarios recurrentes incluyen a deploy y el hostname srv-web-01 ha sido observado previamente. El patrón de actividad sugiere una posible persistencia o tarea programada por parte del usuario.",
+      "analisis_riesgo": "El evento es razonablemente sospechoso dado el historial de actividad repetida y usuario clave involucrado.",
+      "explicacion_mitre": "La táctica ejecución requiere la interpretación de patrones sospechosos de actividad PowerShell y procesos sospechosos.",
+      "uso_contexto_historico": "Se ha observado comportamiento sospechoso recurrente desde IP origen 10.10.20.15, junto con actividades de usuario deploy previamente relacionadas a ejecuciones sospechas.",
       "recomendacion_soc": [
-        "Registrar eventos para análisis posterior",
-        "Revisar si existe un detector aplicable y crear uno nuevo si es necesario",
-        "Mantener el evento en cola de triage de baja prioridad"
+        "Registrar el evento para análisis adicional",
+        "Implementar un detector de anomalías en endpoints",
+        "Monitorear futuras actividades de usuario deploy desde esa IP origen"
       ],
       "posibles_falsos_positivos": [
-        "Existencia de tareas programadas o administración legítima no notificada al SOC."
+        "El usuario deploy podría estar ejecutando acciones administrativas programadas por error.",
+        "La actividad podría ser parte de una rutina de mantenimiento no notificada al SOC."
       ],
-      "siguiente_accion_sugerida": "Continuar monitoreando y revisar si hay más eventos relacionados para identificar patrones adicionales."
+      "siguiente_accion_sugerida": "Continuar monitorización y análisis para determinar el verdadero origen del evento."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 1.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -1417,28 +1718,59 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de consulta DNS sospechosa desde IP origen repetitiva.",
+      "resumen_ejecutivo": "Incidente DNS Query Observed de baja severidad con evidencia de consulta DNS a Google.",
       "hechos_observados": [
-        "1 consulta(s) DNS desde 10.10.20.15 (srv-web-01).",
-        "Destinos de resolución: 8.8.8.8."
+        "1 consulta(s) DNS desde IP origen 10.10.20.15 (srv-web-01).",
+        "Destino: 8.8.8.8 (Google Public DNS)."
       ],
       "inferencias_razonables": [
-        "La IP origen 10.10.20.15 ha sido repetida en otros incidentes previos.",
-        "El usuario 'deploy' está asociado a estos incidentes repetitivos.",
-        "El DNS consulta hacia 8.8.8.8 es frecuente para resolver nombres de dominio."
+        "Podría ser un usuario olvidando su contraseña.",
+        "O podría ser acceso no notificado al SOC por parte de un usuario.",
+        "También podrían ser transferencias de datos programadas, como parte del proceso de backup.",
+        "Sería una administración legítima del sistema, tal vez usando PowerShell para tareas de mantenimiento.",
+        "Podría ser tráfico normal de la aplicación o resolución rutinaria."
       ],
-      "analisis_riesgo": "Alerta baja con IP origen repetida y DNS consulta regular.",
-      "explicacion_mitre": "Tactica Discovery, técnica Network Service Discovery (T1046).",
-      "uso_contexto_historico": "Historial indica que la IP origen es recurrente y el usuario 'deploy' ha estado involucrado en otros incidentes.",
+      "analisis_riesgo": "IP origen repetida (4 incidentes previos relacionados).",
+      "explicacion_mitre": "Parte del Discovery phase, utilizando DNS para identificar servicios.",
+      "uso_contexto_historico": "Se identifican 5 incidentes previos relacionados. 3 fueron críticos. La IP origen ya había aparecido antes. Usuarios recurrentes: deploy. El hostname ya había sido observado previamente.",
       "recomendacion_soc": [
-        "Registrar este evento para análisis posterior.",
-        "Revisar configuraciones DNS para asegurar no se estén atacando servicios legítimos.",
+        "Registrar el evento para análisis posterior.",
+        "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
         "Mantener el evento en cola de triage de baja prioridad."
       ],
       "posibles_falsos_positivos": [
-        "DNS consulta sospechosa podría ser parte del normal funcionamiento del sistema o aplicación."
+        "El DNS podría ser parte normal del funcionamiento del servidor web, como parte del proceso de inicio o configuración del sistema.",
+        "El usuario podría estar utilizando una cuenta de prueba sin contraseña para realizar pruebas, por lo que el evento no es sospechoso."
       ],
-      "siguiente_accion_sugerida": "Revisar si la IP origen está vinculada a servicios vulnerables."
+      "siguiente_accion_sugerida": "Registrar el evento y revisar si hay un detector que identifique este tipo de actividad."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 1.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -1505,30 +1837,57 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de exfiltración de datos sospechoso desde servidor web con IP origen repetida.",
+      "resumen_ejecutivo": "Incidente de exfiltración de datos, considerando evidencia y contexto histórico.",
       "hechos_observados": [
-        "2 eventos de exfiltración desde 10.10.20.15 (srv-web-01).",
-        "Usuario involucrado: deploy.",
-        "Protocolos observados: https.",
-        "Destinos externos: 185.220.101.12."
+        "2 eventos de exfiltración desde la IP origen 10.10.20.15 (srv-web-01)",
+        "El usuario involucrado es deploy",
+        "Se observaron protocolos HTTP en el flujo",
+        "Los destinos externos fueron 185.220.101.12"
       ],
       "inferencias_razonables": [
-        "El usuario deploy es recurrente en los eventos de exfiltración.",
-        "La IP origen 10.10.20.15 ha sido vista antes en incidentes relacionados.",
-        "El servidor web (srv-web-01) está involucrado en varios eventos anteriores."
+        "Existe un patrón de uso repetido de la IP origen 10.10.20.15 y el usuario deploy en otros incidentes previos",
+        "Es posible que el evento sea legítimo, como parte del proceso de backup programado o una administración normal del sistema"
       ],
-      "analisis_riesgo": "Señal de riesgo moderado debido a patrones recurrentes y sin evidencia significativa de intentos no autorizados.",
-      "explicacion_mitre": "La táctica Mitre T1041 'Exfiltración por canal C2' explica el comportamiento observado.",
-      "uso_contexto_historico": "El usuario deploy ha sido visto en eventos anteriores y la IP origen ha aparecido antes, sugiriendo posibles conexiones o actividades repetidas.",
+      "analisis_riesgo": "El riesgo de un falso positivo es bajo debido a la falta de detalles específicos.",
+      "explicacion_mitre": "La táctica Mitré: Exfiltration se aplica, con el sub-técnicas T1041 y T1103 utilizadas para exfiltrar datos por medios no seguros (en este caso, HTTP).",
+      "uso_contexto_historico": "El historial de incidentes muestra una IP origen y usuario recurrente. La mayoría de los incidentes previos fueron menos severos.",
       "recomendacion_soc": [
-        "Registrar el evento para análisis posterior.",
-        "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
-        "Mantener el evento en cola de triage de baja prioridad."
+        "Registrar el evento en la base de datos para tener registro histórico.",
+        "Verificar si se han implementado protocolos de seguridad que puedan haber sido infringidos (por ejemplo, uso anormal del comando de administración 'deploy').",
+        "Mantener la alerta en cola de triage de baja prioridad."
       ],
       "posibles_falsos_positivos": [
-        "Posible que el usuario deploy tenga acceso autorizado a datos exfiltables."
+        "El evento podría ser un intento de acceso legítimo como parte de una operación programada de backup o mantenimiento del sistema"
       ],
-      "siguiente_accion_sugerida": "Registrar eventos para análisis y revisar detalladamente la actividad del usuario deploy en el sistema."
+      "siguiente_accion_sugerida": "Verificar la configuración y comportamiento de los servicios HTTP, especialmente si se han establecido procedimientos de seguridad que permitan exfiltraciones no seguras."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 1.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -1610,22 +1969,21 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de fuerza bruta SSH con múltiples intentos fallidos y acceso a múltiples cuentas.",
+      "resumen_ejecutivo": "Incidente de fuerza bruta SSH que requiere escalamiento debido a múltiples usuarios atacados y patrón repetido.",
       "hechos_observados": [
         "5 intentos fallidos SSH desde 91.108.4.50 hacia srv-db-01 (10.10.30.21).",
         "Usuarios observados: git, mysql, oracle, postgres, root.",
-        "La IP origen probó credenciales contra múltiples usuarios."
+        "El IP origen probó credenciales contra múltiples usuarios."
       ],
       "inferencias_razonables": [
-        "Podría ser un usuario olvidando su contraseña, intentando recuperar acceso a cuentas específicas.",
-        "El patrón repetido de IP y usuarios sugiere que esto podría no estar relacionado con un ataque reincidente.",
-        "Existen usuarios recurrentes (oracle, root) que podrían tener conexiones múltiples al sistema o ser una fuente de inactividad sospechosa.",
-        "El historial indica un patrón de repetición, lo que podría indicar un ataque continuo pero no necesariamente falso positivo.",
-        "Necesita más análisis para determinar si hay conexiones legítimas o si esta es una falsa alarma."
+        "Hay un patrón repetido de fuerza bruta SSH desde la misma IP (91.108.4.50), lo que sugiere una campaña de ataque.",
+        "Los intentos fallidos se produjeron contra múltiples usuarios, incluyendo root, que es usuario privilegiado.",
+        "El uso repetido de las cuentas root y otras cuentas con privilegios elevados (como oracle) sugiere acceso no autorizado.",
+        "La falta de accesos exitosos posteriores a los intentos fallidos puede indicar que la campaña ha sido abortada temporalmente."
       ],
-      "analisis_riesgo": "Incidente crítico debido a múltiples intentos fallidos y acceso a cuentas clave.",
-      "explicacion_mitre": "Múltiples usuarios atacados por la misma IP origen utilizando técnicas de fuerza bruta para acceder a cuentas de usuario.",
-      "uso_contexto_historico": "El patrón repetido de IP origen y usuarios afectados indica que podría no ser una nueva alarma falsa, sino un continuo intento de acceso.",
+      "analisis_riesgo": "El evento presenta riesgos significativos debido a múltiples usuarios atacados y patrón repetido.",
+      "explicacion_mitre": "El incidente se alinea con T1110 de Mitre ATT&CK, que aborda la fuerza bruta de contraseñas como táctica para obtener acceso a cuentas.",
+      "uso_contexto_historico": "El historial indica que el IP origen ha mostrado actividad sospechosa antes, y los usuarios atacados son recurrentes. Esto sugiere una campaña sistemática de ataque.",
       "recomendacion_soc": [
         "Simular bloqueo temporal de la IP origen en controles perimetrales.",
         "Revisar logs de autenticación SSH en el host afectado.",
@@ -1634,11 +1992,38 @@
         "Forzar cambio de contraseña para cuentas comprometidas o de alto riesgo."
       ],
       "posibles_falsos_positivos": [
-        "Intentos fallidos SSH legítimos debido a un usuario olvidando su contraseña.",
-        "Un ataque continuo donde la IP origen podría estar intentando recuperar acceso a múltiples cuentas.",
-        "Acceso programado por parte de un proceso de backup o administración normal."
+        "La fuerza bruta SSH podría haber sido llevada a cabo por un usuario olvidando su contraseña. No se ha proporcionado evidencia directa de este caso específico.",
+        "El acceso fallido puede ser debido al bloqueo temporal que se simuló en la IP origen, no necesariamente a una campaña de ataque."
       ],
-      "siguiente_accion_sugerida": "Revisar logs adicionales y analizar el historial para confirmar o descartar la naturaleza atacante del evento."
+      "siguiente_accion_sugerida": "Continuar monitoreo y análisis para confirmar o desmentir la naturaleza del incidente."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 0.9386,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 0.9386,
+        "sospechoso": 0.0614
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -1718,30 +2103,58 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de login fallidos y exitoso con múltiples intentos provenientes de una sola IP. Es crítico por su severidad, número de usuarios afectados y patrón repetido.",
+      "resumen_ejecutivo": "Alerta de inicio de acceso sospechoso con múltiples intentos fallidos y login exitoso desde una misma IP origen.",
       "hechos_observados": [
-        "4 intentos fallidos SSH desde 45.33.32.156 hacia srv-auth-01 (10.10.20.20).",
-        "Usuarios observados: admin, pi, test, ubuntu.",
-        "Se observó un login exitoso posterior para: ubuntu."
+        "4 intentos fallidos SSH desde la IP 45.33.32.156 hacia el host srv-auth-01 (10.10.20.20).",
+        "El usuario test probó credenciales contra múltiples usuarios.",
+        "Se observó un login exitoso posteriormente para el usuario ubuntu."
       ],
       "inferencias_razonables": [
-        "El acceso legítimo de 'ubuntu' podría ser accidental debido a una contraseña olvidada o mal recordada.",
-        "Los intentos fallidos podrían estar asociados con un ataque de password spraying contra múltiples cuentas.",
-        "Hay un patrón repetido con la misma IP origen y usuarios que han sido atacados previamente."
+        "Intentos fallidos de acceso SSH podrían ser causados por usuarios olvidando sus contraseñas temporales, especialmente si hubo múltiples intentos con diferentes usuarios.",
+        "El login exitoso podría ser legítimo. No se pueden realizar confirmaciones inmediatas y requiere que el administrador de cuenta valide la legitimidad del acceso.",
+        "La misma IP origen repetida podría indicar una campaña de password spraying contra múltiples cuentas, lo cual es sospechoso en este escenario."
       ],
-      "analisis_riesgo": "El incidente es crítico debido a su severidad, número de intentos fallidos y acceso exitoso. La repetición del origen IP y usuarios afectados aumenta el riesgo.",
-      "explicacion_mitre": "Esta táctica inicial permite validación de cuentas para iniciar un ataque.",
-      "uso_contexto_historico": "El historial muestra 5 incidentes previos relacionados, 3 críticos. La IP origen y usuarios afectados son recurrentes, sugiriendo posible compromiso.",
+      "analisis_riesgo": "Alerta considerada crítica por su naturaleza inusual y riesgo potencial de acceso comprometido.",
+      "explicacion_mitre": "Valid Accounts: A la cuenta se intentó acceder múltiples veces con diferentes usuarios sin éxito, luego se logró ingreso con el usuario ubuntu, lo que sugiere posibles acciones legítimas o un intento malicioso.",
+      "uso_contexto_historico": "Se identificaron 5 incidentes previos relacionados. 3 fueron críticos. Usuarios recurrentes: admin. El hostname ya había sido observado previamente, lo que sugiere posible persistencia del atacante.",
       "recomendacion_soc": [
-        "Revisar el acceso exitoso para confirmar su legitimidad con la cuenta dueña de 'ubuntu'.",
-        "Buscar cambios en los archivos SSH y persistencia del ataque.",
-        "Forzar un cambio de contraseña si no se puede validar la legitimidad."
+        "Forzar cambio de contraseña para el usuario ubuntu si no se puede validar su legitimidad.",
+        "Revisar comandos ejecutados después del acceso y búsqueda de cambios de llaves SSH o creación de usuarios.",
+        "Notificar a un analista SOC para revisión manual e investigar otros accesos exitosos posibles."
       ],
       "posibles_falsos_positivos": [
-        "Acceso exitoso de una cuenta conocida que haya olvidado su contraseña, pero aún no confirmado.",
-        "Acceso programático o legítimo que fue atacado por el intento de validación de cuentas."
+        "El login exitoso podría ser legítimo, especialmente si el usuario ubuntu es un administrador normal que realizó cambios de contraseña en su propio nombre.",
+        "Los intentos fallidos potencialmente podrían haber sido causados por usuarios olvidando sus contraseñas temporales o accidentalmente ingresando la correcta por error."
       ],
-      "siguiente_accion_sugerida": "Notificar a un analista SOC para verificar si los accesos fueron legítimos y realizar acciones preventivas como la fuerza de las contraseñas."
+      "siguiente_accion_sugerida": "Forzar el cambio de contraseña para ubuntu y realizar un análisis adicional."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 0.9386,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 0.9386,
+        "sospechoso": 0.0614
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -1809,31 +2222,59 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de actividad red socialmente observada con baja severidad.",
+      "resumen_ejecutivo": "Incidente de actividad red social en baja prioridad.",
       "hechos_observados": [
-        "1 conexión(s) de red desde 10.10.20.20 (srv-auth-01).",
+        "1 conexión(es) de red detectada desde 10.10.20.20 (srv-auth-01).",
         "Servicios: https.",
         "Destinos: 45.33.32.156.",
-        "Resultado observado: permitido."
+        "Resultados observados: permitido."
       ],
       "inferencias_razonables": [
-        "El uso repetitivo de la IP origen 10.10.20.20 (srv-auth-01) sugiere que este puede ser un host recurrente sin necesidad de alerta crítica.",
-        "La existencia de usuarios recurrentes como ubuntu y el hostname srv-auth-01 indica una actividad normal en el sistema.",
-        "El uso del servicio https desde 45.33.32.156 podría ser parte del proceso de resolución DNS, sin indicar riesgo adicional."
+        "El usuario ubuntu pudo haber hecho un intento de conexión a una red externa, posiblemente para un servicio web.",
+        "Puede ser que se trate de un intento legítimo de acceso al servicio web, dado que el resultado fue permitido.",
+        "Como la IP origen (10.10.20.20) es recurrente, podría indicar una posible actividad sospechosa."
       ],
-      "analisis_riesgo": "El incidente tiene un nivel de riesgo moderado basado en el uso recurrente y normalidad previa.",
-      "explicacion_mitre": "La táctica Discovery implica exploración del sistema para identificar vulnerabilidades o servicios desconocidos.",
-      "uso_contexto_historico": "El historial reciente sugiere actividad no críticamente anómala, con una repetición de IP origen y usuarios.",
+      "analisis_riesgo": "El evento se clasifica como de baja prioridad debido a su evidencia y el historial del usuario.",
+      "explicacion_mitre": "TACTICA_DISCOVERY: Discovery de servicios mediante la exploración de red o uso de protocolos HTTP/HTTPS.",
+      "uso_contexto_historico": "El histórico indica que el usuario ubuntu ha mostrado actividad sospechosa antes, lo cual potencialmente justifica este evento.",
       "recomendacion_soc": [
-        "Registrar el evento como parte del seguimiento normal de actividades red en este host.",
-        "Revisar si existen alertas específicas o recomendaciones para servicios https desde esa dirección.",
-        "Manejar esta actividad en la cola de análisis de riesgo moderado."
+        "Registrar el evento para análisis posterior.",
+        "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
+        "Mantener el evento en cola de triage de baja prioridad."
       ],
       "posibles_falsos_positivos": [
-        "Eventos similares previos, como los tres anteriores relacionados con este host, que fueron atenuados a niveles inofensivos.",
-        "El uso habitual del servicio https y el hostname srv-auth-01 podría implicar tráfico normal de la aplicación."
+        "El usuario ubuntu pudo haber realizado una conexión legítima al servicio web.",
+        "Hay actividad sospechosa en la IP origen (10.10.20.20) que ya ha sido observada previamente."
       ],
-      "siguiente_accion_sugerida": "Mantener alerta en la actividad sospechosa sin activación de protocolos de respuesta más drásticos."
+      "siguiente_accion_sugerida": "Continuar vigilando el evento y revisar si es necesario un análisis más detallado."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 1.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -1900,26 +2341,60 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de actividad DNS sospechosa detectada con baja severidad.",
+      "resumen_ejecutivo": "Alerta de actividad DNS sospechosa registrada en servidor de autenticación.",
       "hechos_observados": [
-        "1 consulta(s) DNS desde 10.10.20.20 (srv-auth-01).",
-        "Destinos de resolución: 8.8.8.8."
+        "1 consulta(s) DNS desde la IP origen 10.10.20.20 (srv-auth-01).",
+        "El destino de resolución es 8.8.8.8 (Google DNS).",
+        "Las consultas asociadas son a dominios maliciosos o canales C2.",
+        "La IP origen ha aparecido repetidamente (9 eventos previos)."
       ],
       "inferencias_razonables": [
-        "El usuario ubuntu ha sido recurrente en incidentes previos.",
-        "La IP origen es recurrente, lo que sugiere posible comportamiento sospechoso."
+        "El servidor srv-auth-01 es recurrente y puede estar respondiendo consultas DNS legítimas con el Google DNS, una consulta común en entornos de confianza.",
+        "Los usuarios ubuntu son recurrentes, pero sin información adicional sobre su uso normal de las redes externas no pueden ser excluidos automáticamente del análisis sospechoso.",
+        "El evento tiene baja severidad y solo muestra consultas DNS legítimas con Google DNS. Esto sugiere un uso común en entornos empresariales.",
+        "No hay evidencia de otros tipos de actividad sospechosos asociados a estos eventos."
       ],
-      "analisis_riesgo": "Señal mixta de actividad DNS sospechosa con baja severidad y evidencia de usuarios recurrentes.",
-      "explicacion_mitre": "Tactic C2 - Communication to COM – Utiliza el protocolo DNS para comunicarse con un servidor remoto.",
-      "uso_contexto_historico": "IP origen recurrente y usuario recurrente ubuntu sugieren posibles sesiones sospechosas.",
+      "analisis_riesgo": "El riesgo es bajo debido al uso usual del servidor y los usuarios, pero requeriría seguimiento para confirmar la naturaleza normal de esta actividad.",
+      "explicacion_mitre": "La táctica C2 (Command and Control) se utiliza en este incidente a través de consultas DNS a servidores externos como Google DNS. La aplicación Layer Protocol también es relevante aquí.",
+      "uso_contexto_historico": "El historial indica que el servidor y los usuarios son recurrentes, pero no hay pruebas directas de actividades sospechosas anteriores relacionadas con este dominio o estos IPs.",
       "recomendacion_soc": [
-        "Registrar eventos futuros para análisis posterior.",
-        "Revisar configuraciones DNS o IP origen si hay cambios inesperados."
+        "Registrar la actividad en una base de datos SOC para análisis posterior.",
+        "Comprobar si existe un detector aplicable o crear uno nuevo para futuras consultas DNS sospechas.",
+        "Colocar el evento en cola de triage con prioridad baja."
       ],
       "posibles_falsos_positivos": [
-        "El usuario ubuntu podría estar realizando acciones de administración normal en el sistema."
+        "El servidor srv-auth-01 puede estar respondiendo a una configuración normal de consulta DNS, sin actividad sospechosa asociada.",
+        "Los usuarios ubuntu pueden estar utilizando su cuenta para tareas legítimas que implican consultas DNS externas."
       ],
-      "siguiente_accion_sugerida": "Monitorear eventos futuros y realizar revisión si hay cambios sospechosos."
+      "siguiente_accion_sugerida": "Continuar analizando y reportando este evento basándose en el historial de actividades repetidas."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 1.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -1989,31 +2464,57 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de compromiso del endpoint con evidencia de actividad sospechosa relacionada con PowerShell y procesos sospechosos.",
+      "resumen_ejecutivo": "Alerta de ejecución remota sospechosa con uso de PowerShell.",
       "hechos_observados": [
-        "3 eventos de endpoint en srv-auth-01 por usuario ubuntu",
-        "Actividad detectada: file_access, powershell_activity, process_creation",
-        "Ejecución sospecha detectada mediante PowerShell",
-        "Creado procesos sospechosos",
-        "Acceso a archivos sensibles"
+        "3 eventos de endpoint en srv-auth-01 por usuario ubuntu.",
+        "Actividad PowerShell detectada: posible ejecución de payload.",
+        "Creación de procesos sospechosos detectada."
       ],
       "inferencias_razonables": [
-        "El usuario ubuntu puede estar olvidando su contraseña y ejecutando comandos directamente por error.",
-        "Existe un patrón de actividad sospechosa desde la IP origen 10.10.20.20.",
-        "El evento no tiene intentos fallidos, sugiriendo posibles acciones legítimas o maliciosas ejecutadas con éxito."
+        "El uso recurrente de la IP origen (10.10.20.20) y el usuario ubuntu sugiere que este puede ser un ataque repetido.",
+        "No se identifican hipótesis de falso positivo basadas en la evidencia disponible."
       ],
-      "analisis_riesgo": "El incidente parece sospechoso pero sin evidencia clara de actividad maliciosa. Requiere análisis adicional para confirmar el riesgo.",
-      "explicacion_mitre": "La táctica Mitré ejecución (Execution) y la técnica T1059.001 indican posibles acciones sospechosas por parte del usuario ubuntu a través de PowerShell y procesos.",
-      "uso_contexto_historico": "El contexto histórico sugiere que usuarios recurrentes han causado incidentes en el pasado, incluyendo este caso. La IP origen también ha aparecido repetidamente, lo cual incrementa la preocupación.",
+      "analisis_riesgo": "Riesgo moderado debido a las características sospechosas encontradas.",
+      "explicacion_mitre": "El ataque coincide con la táctica 'Execution' y técnica 'Command and Scripting Interpreter' (T1059, T1059.001).",
+      "uso_contexto_historico": "Se identifican 5 incidentes previos relacionados. 2 fueron críticos. La IP origen ya había aparecido antes. Usuarios recurrentes: ubuntu. El hostname srv-auth-01 ha sido observado previamente.",
       "recomendacion_soc": [
-        "Registrar eventos para confirmar riesgo y tomar medidas si necesario",
-        "Revisar configuraciones de endpoint y seguridad",
-        "Crear alertas para futuras acciones sospechas similares"
+        "Registrar el evento para análisis posterior.",
+        "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
+        "Mantener el evento en cola de triage de baja prioridad."
       ],
       "posibles_falsos_positivos": [
-        "Acceso legítimo del usuario ubuntu ejecutando comandos directamente sin notificar al SOC"
+        "El usuario ubuntu pudo haber accedido accidentalmente a srv-auth-01, especialmente si ha estado en sesiones activas en este host previamente.",
+        "Puede haber sido una actividad administrativa no notificada al SOC."
       ],
-      "siguiente_accion_sugerida": "Seguir el proceso de triage con una mayor revisión y confirmación para determinar si se requiere escalamiento."
+      "siguiente_accion_sugerida": "Seguir las recomendaciones del playbook y esperar el análisis posterior para determinar la naturaleza segura o sospechosa de estos eventos."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 1.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -2083,35 +2584,59 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Alerta de exfiltración de datos desde una IP repetidora, sospechando posibles acciones legítimas o falsos positivos.",
+      "resumen_ejecutivo": "Incidente sospechoso de exfiltración de datos desde servidor auth-01 con evidencia de uso de protocolos inusuales y transferencias externas.",
       "hechos_observados": [
-        "4 eventos de exfiltración desde la IP origen 10.10.20.20 (srv-auth-01).",
+        "4 eventos de exfiltración desde IP origen 10.10.20.20 (srv-auth-01).",
         "Usuario involucrado: ubuntu.",
         "Protocolos observados: https, icmp.",
         "Destinos externos: 203.0.113.250, 45.33.32.156.",
         "Se detectaron protocolos inusuales (FTP/SMB/ICMP) asociados a exfiltración."
       ],
       "inferencias_razonables": [
-        "La IP origen 10.10.20.20 aparece repetidamente, sugiriendo actividad frecuente.",
-        "El usuario ubuntu está involucrado en los eventos, pero no se ha notificado al SOC.",
-        "Hay protocolos inusuales asociados a exfiltración, lo que indica un intento potencial de trasferencia de datos.",
-        "La exfiltración puede estar siendo realizada mediante el uso de protocolos menos habituales (como ICMP).",
-        "El evento es considerado de baja severidad y alta prioridad debido al historial similar."
+        "El uso de protocolos inusuales como ICMP junto con el destino externo 45.33.32.156 puede indicar una transferencia sospechosa.",
+        "La repetición de la IP origen (10.10.20.20) y el usuario ubuntu sugiere un patrón recurrente de actividad no notificada al SOC."
       ],
-      "analisis_riesgo": "Alerta con actividad sospechosa pero bajo riesgo alto, dado el historial repetido.",
-      "explicacion_mitre": "La alerta está asociada a la táctica de exfiltración (T1048) y la técnica de exfiltración sobre protocolos alternativos (T1048.003).",
-      "uso_contexto_historico": "El histórico indica actividad recurrente de la misma IP origen, usuarios y hostname. Se identifican anteriores incidentes de tipo similar.",
+      "analisis_riesgo": "El evento puede representar una amenaza potencial debido a su naturaleza sospechosa.",
+      "explicacion_mitre": "Exfiltración Over Alternative Protocol (T1048).",
+      "uso_contexto_historico": "Se identifican 6 incidentes previos relacionados. 2 fueron críticos. La IP origen ya había aparecido antes. Usuarios recurrentes: ubuntu. El hostname ya había sido observado previamente.",
       "recomendacion_soc": [
         "Registrar el evento para análisis posterior.",
         "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
         "Mantener el evento en cola de triage de baja prioridad."
       ],
       "posibles_falsos_positivos": [
-        "El acceso del usuario ubuntu podría ser legítimo y no notificado al SOC (excluyendo que haya habido un cambio de contraseña).",
-        "La exfiltración podría estar siendo realizada como parte de un proceso de administración o mantenimiento normal.",
-        "Los protocolos inusuales podrían ser resultados normales de la aplicación o resolución rutinaria del sistema."
+        "El usuario ubuntu podría estar realizando una transferencia programada como parte del proceso de respaldo.",
+        "Los protocolos inusuales pueden ser parte del manejo de tráfico normal de la aplicación o resolución rutinaria por DNS."
       ],
-      "siguiente_accion_sugerida": "Registrar el evento para análisis posterior en busca de patrones y confirmar si es una actividad sospechosa o un caso normal recurrente."
+      "siguiente_accion_sugerida": "Registrar el evento para análisis posterior y revisar si se requiere un detector específico en este caso. Mantener el evento en cola de triage de baja prioridad."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 1.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -2179,31 +2704,37 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de actividad DNS sospechosa con baja severidad.",
-      "hechos_observados": [
-        "1 consulta(s) DNS desde 192.0.2.55 (ws-analyst-07).",
-        "Destinos de resolución: 8.8.8.8.",
-        "1 consulta(s) bloqueadas por sinkhole o firewall.",
-        "Consultas asociadas a dominios maliciosos o canales C2 detectados."
+      "estado": "omitido",
+      "motivo": "Filtrado en Etapa 1 (Machine Learning clasificó como NORMAL o Severidad Baja)",
+      "accion_sugerida": "PERMITIR"
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "normal",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 1.0,
+        "fallido": 0.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
       ],
-      "inferencias_razonables": [
-        "El usuario analyst es recurrente y ha sido observado previamente en otros incidentes.",
-        "Hay una consulta DNS bloqueada, sugiriendo que las solicitudes están siendo controladas.",
-        "Las consultas se relacionan con dominios sospechosos detectados."
-      ],
-      "analisis_riesgo": "El evento tiene baja severidad y alta probabilidad de ser legítimo o accidental.",
-      "explicacion_mitre": "Esta actividad podría representar una parte del controlador de red (C2) en el marco MITRE ATT&CK.",
-      "uso_contexto_historico": "El usuario analyst ha sido recurrente, y la IP origen es conocida. Hay un historial de incidentes similares con baja severidad.",
-      "recomendacion_soc": [
-        "Registrar evento para análisis posterior en el SOC.",
-        "Revisar configuraciones de sinkhole o firewall que bloquearon las consultas.",
-        "Escalar vigilancia si se detectan patrones repetitivos o correlativos futuros."
-      ],
-      "posibles_falsos_positivos": [
-        "Potencialmente, las solicitudes DNS podrían ser legítimas, como parte del proceso de backup programado.",
-        "Las consultas bloqueadas por sinkhole pueden ser accidental debido a un error en el sistema o una intervención externa."
-      ],
-      "siguiente_accion_sugerida": "Seguir monitoreando para verificar si las actividades se vuelven recurrentes."
+      "estado": "ok"
     }
   },
   {
@@ -2274,33 +2805,61 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Alerta de exfiltración de datos sospechosa desde una IP recurrente.",
+      "resumen_ejecutivo": "Alerta de exfiltración de datos por parte de un usuario no autorizado.",
       "hechos_observados": [
-        "5 eventos de exfiltración registrados desde la IP origen 10.10.20.15 (srv-web-01)",
-        "Usuario involucrado: backup",
-        "Protocolos observados: DNS, FTP, SMB",
-        "Destinos externos identificados: 10.10.30.21, 198.51.100.88, 8.8.8.8",
-        "Se detectaron conexiones inusuales (FTP/SMB/ICMP) asociadas a exfiltración"
+        "Se detectaron 5 eventos de exfiltración desde la IP origen 10.10.20.15 (srv-web-01).",
+        "El usuario involucrado fue 'backup'.",
+        "Los protocolos observados incluyeron dns, ftp, y smb.",
+        "Los destinos externos fueron 10.10.30.21, 198.51.100.88, y 8.8.8.8.",
+        "Se detectaron protocolos inusuales (FTP/SMB/ICMP) asociados con la exfiltración."
       ],
       "inferencias_razonables": [
-        "El usuario backup ha sido involucrado en incidentes de exfiltración previos.",
-        "La IP origen repetida sugiere una posible actividad sospechosa persistente.",
-        "Los protocolos DNS, FTP y SMB, asociados a exfiltración, indican acciones inusuales",
-        "El uso de la dirección 10.10.30.21 como destino externo es preocupante."
+        "El usuario 'backup' pudo haber iniciado los eventos de exfiltración debido a un intento fallido, ya que el nombre de usuario está presente en varios incidentes.",
+        "Hay coincidencia de IP origen repetida (14 eventos), lo cual podría indicar una cuenta recurrente o maliciosa.",
+        "Existe un historial previo de 8 incidentes relacionados con este usuario 'backup'.",
+        "No se identifican hipótesis de falso positivo basadas en la evidencia disponible."
       ],
-      "analisis_riesgo": "Alerta sospechosa con baja severidad.",
-      "explicacion_mitre": "Este incidente está dentro del contexto de táctica y técnica MIRTe (Exfiltración) que implica la exfiltración a través de protocolos alternativos.",
-      "uso_contexto_historico": "El historial indica que el usuario backup ha sido involucrado en múltiples incidentes relacionados, lo cual sugiere una posible intención maliciosa. La repetición de la IP origen también es preocupante.",
+      "analisis_riesgo": "El riesgo es bajo debido a la baja severidad asignada.",
+      "explicacion_mitre": "La alerta corresponde con la táctica 'Exfiltración' y técnica 'Exfiltración por Protocolo Alternativo', que implica un acceso sospechoso al servidor.",
+      "uso_contexto_historico": "El historial de incidentes relacionados permite identificar el comportamiento recurrente del usuario 'backup', lo cual es relevante para la evaluación.",
       "recomendacion_soc": [
-        "Registrar evento para análisis posterior",
-        "Revisar si existe un detector aplicable o se requiere crear uno nuevo.",
-        "Mantener el evento en cola de triage de baja prioridad."
+        "Registrar todos los eventos para análisis futuro y mantener bajo nivel de escalado.",
+        "Crear un detector específico si no existe uno ya disponible en el sistema.",
+        "Seguir con la monitorización del usuario 'backup' por razones sospechosas."
       ],
       "posibles_falsos_positivos": [
-        "Existe el potencial de que este evento sea causado por una transferencia de datos programada como parte del proceso de backup",
-        "El usuario backup podría haber olvidado su contraseña y esté intentando acceder a las bases de datos para hacer un reporte de error."
+        "Podría ser que los intentos iniciales de exfiltración fueran causados por un usuario olvidando su contraseña o malintencionado.",
+        "El acceso programático a sistemas críticos podría no haber sido notificado al SOC debido a un sistema de alertas predeterminado."
       ],
-      "siguiente_accion_sugerida": "Registrar alerta en la cola de análisis posterior con baja prioridad, manteniendo vigilancia por futuras actividades sospechosas desde esta IP origen o este usuario."
+      "siguiente_accion_sugerida": "Continuar la monitorización del usuario 'backup' y reevaluar el detector específico si necesario."
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "fallido",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 0.0,
+        "fallido": 1.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
+      ],
+      "estado": "ok"
     }
   },
   {
@@ -2368,29 +2927,37 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de actividad red social, sin riesgo notorio.",
-      "hechos_observados": [
-        "1 conexión(es) de red detectadas desde 10.10.40.12 (srv-app-01).",
-        "Servicios: https.",
-        "Destinos: 192.0.2.44.",
-        "Resultados observados: permitido."
+      "estado": "omitido",
+      "motivo": "Filtrado en Etapa 1 (Machine Learning clasificó como NORMAL o Severidad Baja)",
+      "accion_sugerida": "PERMITIR"
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "normal",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 1.0,
+        "fallido": 0.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
       ],
-      "inferencias_razonables": [
-        "El usuario soporte podría haber accedido a través de un navegador web para una actividad normal, como revisar o configurar servicios.",
-        "El evento puede ser parte del patrón recurrente de uso del hostname srv-app-01 con el usuario soporte."
-      ],
-      "analisis_riesgo": "Riesgo minimizado por la baja severidad y prioridad establecida en el reporte.",
-      "explicacion_mitre": "Este incidente se relaciona con Discovery, donde un agente intenta descubrir servicios de red existentes.",
-      "uso_contexto_historico": "El evento no contradice el historial de actividad recurrente del usuario soporte y el hostname srv-app-01.",
-      "recomendacion_soc": [
-        "Registrar el evento para análisis posterior en busca de patrones futuros.",
-        "Asegurar que los procesos legítimos de uso se clasifiquen correctamente."
-      ],
-      "posibles_falsos_positivos": [
-        "El evento podría ser un intento fallido de conexión, pero sin evidencia de un usuario inadecuado autenticando.",
-        "El servicio https está permitido y no sugiere riesgo específico."
-      ],
-      "siguiente_accion_sugerida": "Continuar con la monitorización del sistema para cualquier cambio o actividad sospechosa asociada al evento."
+      "estado": "ok"
     }
   },
   {
@@ -2459,33 +3026,37 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente de exfiltración de datos detectado desde una IP repetidamente utilizada con usuario soporte, utilizando protocolos dns y https.",
-      "hechos_observados": [
-        "4 eventos de exfiltración observados desde la IP origen 10.10.40.12 (srv-app-01).",
-        "Usuario invulado: soporte.",
-        "Los destinos externos son 192.0.2.44, 203.0.113.250 y 8.8.8.8.",
-        "Se identifican 5 incidentes previos relacionados con exfiltración de datos.",
-        "2 de estos anteriores fueron críticos."
+      "estado": "omitido",
+      "motivo": "Filtrado en Etapa 1 (Machine Learning clasificó como NORMAL o Severidad Baja)",
+      "accion_sugerida": "PERMITIR"
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "normal",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 1.0,
+        "fallido": 0.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
       ],
-      "inferencias_razonables": [
-        "La repetición de la IP origen podría indicar un comportamiento sospechoso, pero también puede ser parte del patrón normal de actividad en el sistema.",
-        "El usuario soporte se ha involucrado en múltiples incidentes previos relacionados con exfiltración de datos.",
-        "Los destinos externos incluyen DNS y hosts conocidos como servidores de nombres de equipos, lo que sugiere tráfico normal de red.",
-        "No hay información sobre intentos fallidos o logins exitosos que podrían ser interpretados como legítimos."
-      ],
-      "analisis_riesgo": "El incidente tiene una severidad baja pero merece revisión debido a la repetición de la IP origen y los múltiples incidentes previos.",
-      "explicacion_mitre": "La táctica Exfiltración (T1041) implica el exfiltrar información de un sistema para transferirla a otro.",
-      "uso_contexto_historico": "El historial indica que la IP origen se ha presentado repetidamente y hay múltiples incidentes previos relacionados con exfiltración de datos, lo cual puede indicar comportamiento sospechoso.",
-      "recomendacion_soc": [
-        "Registrar el evento en una base de datos de alertas para análisis posterior.",
-        "Revisar si existe un detector aplicable y/o configurarlo para mejorar la detección futura.",
-        "Mantener el evento en cola de triage de baja prioridad."
-      ],
-      "posibles_falsos_positivos": [
-        "El usuario soporte puede estar involucrado en actividades legítimas repetidas, lo que podría llevar a un análisis futuro para determinar si hubo un error en la clasificación.",
-        "Los destinos externos DNS pueden ser parte de una consulta rutinaria del sistema o servicio, no necesariamente indicativo de actividad sospechosa."
-      ],
-      "siguiente_accion_sugerida": "El SOC continuará monitoreando este evento y revisará el historial de la IP origen para identificar cualquier cambio significativo en comportamiento futuro."
+      "estado": "ok"
     }
   },
   {
@@ -2552,29 +3123,37 @@
       }
     },
     "analisis_qwen3_real": {
-      "resumen_ejecutivo": "Incidente DNS sospechoso de alta prioridad, pero baja severidad.",
-      "hechos_observados": [
-        "1 consulta(s) DNS desde 10.10.40.12 (srv-app-01).",
-        "Destinos de resolución: 8.8.8.8."
+      "estado": "omitido",
+      "motivo": "Filtrado en Etapa 1 (Machine Learning clasificó como NORMAL o Severidad Baja)",
+      "accion_sugerida": "PERMITIR"
+    },
+    "prediccion_ml": {
+      "modelo": "DecisionTreeClassifier",
+      "clase_predicha": "normal",
+      "confianza": 1.0,
+      "probabilidades": {
+        "normal": 1.0,
+        "fallido": 0.0,
+        "sospechoso": 0.0
+      },
+      "features_usadas": [
+        "tipo_evento",
+        "servicio",
+        "usuario",
+        "hostname",
+        "severidad_inicial",
+        "hora_evento",
+        "es_horario_laboral",
+        "ip_origen_es_privada",
+        "usuario_privilegiado",
+        "host_critico",
+        "conteo_eventos_ip_ventana",
+        "conteo_usuarios_distintos_ip",
+        "conteo_hosts_distintos_ip",
+        "conteo_fallidos_ventana",
+        "servicio_sensible"
       ],
-      "inferencias_razonables": [
-        "El uso repetido de la IP origen (10.10.40.12) y el dominio consultado (destino 8.8.8.8) sugiere un patrón sospechoso, que podría ser parte de una estrategia C2.",
-        "Usuarios recurrentes identificados como 'soporte' podrían estar involucrados en este evento.",
-        "El uso de la IP de DNS resolviendo a Google (8.8.8.8) es sospechoso, ya que podría ser parte de una estrategia de C2."
-      ],
-      "analisis_riesgo": "Incidente detectado pero considerado bajo riesgo.",
-      "explicacion_mitre": "La consulta DNS se realiza en la táctica MANDATORY-DNS (Mandatória consulta DNS) que puede ser parte de una estrategia de C2.",
-      "uso_contexto_historico": "Se identifican patrones recurrentes de IP origen y usuarios, sugiriendo un posible comportamiento sospechoso.",
-      "recomendacion_soc": [
-        "Registrar el evento para análisis posterior.",
-        "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
-        "Mantener el evento en cola de triage de baja prioridad."
-      ],
-      "posibles_falsos_positivos": [
-        "Acceso legítimo a servidores DNS normal para resolución de nombres.",
-        "Ejecución programada de un proceso de backup que implica consultas DNS."
-      ],
-      "siguiente_accion_sugerida": "Registrar evento y revisar por posibles falsas positivas potenciales."
+      "estado": "ok"
     }
   }
 ]

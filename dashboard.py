@@ -1,6 +1,7 @@
 """Dashboard Streamlit para visualizar el MVP académico SOAR-AI."""
 
 from __future__ import annotations
+import json
 from typing import Any
 
 import pandas as pd
@@ -52,6 +53,9 @@ def main() -> None:
     _mostrar_graficos(df)
     _mostrar_tabla_soc(df)
     _mostrar_detalle_incidente(reportes, df)
+    
+    # LLAMADO ESTRUCTURADO: Dibujamos las métricas científicas al final de la página
+    _mostrar_metricas_devsecops()
 
 
 def _mostrar_kpis(df: pd.DataFrame) -> None:
@@ -264,6 +268,53 @@ def _mostrar_lista(valores: Any) -> None:
 
     for valor in valores:
         st.markdown(f"- {valor}")
+
+
+def _mostrar_metricas_devsecops() -> None:
+    """Carga y visualiza las métricas de evaluación científica del modelo."""
+    st.markdown("---")
+    st.header("Evaluación de Modelos (Métricas DevSecOps)")
+    st.write("Rendimiento del pipeline híbrido en base a los datasets de evaluación masiva.")
+
+    try:
+        ruta_metricas = "data/metricas_arbol_decision.json" 
+        with open(ruta_metricas, "r", encoding="utf-8") as f:
+            metricas_ml = json.load(f)
+            
+        st.subheader("Filtro Etapa 1: Árbol de Decisión (Machine Learning)")
+        
+        # 1. Tarjetas de KPIs (Accuracy, Error Rate, Precision, Recall, F1)
+        col1, col2, col3, col4, col5 = st.columns(5)
+        
+        accuracy = metricas_ml["metricas"]["accuracy"]
+        error_rate = 1 - accuracy
+        precision = metricas_ml["metricas"]["precision_macro"]
+        recall = metricas_ml["metricas"]["recall_macro"]
+        f1 = metricas_ml["metricas"]["f1_macro"]
+        
+        col1.metric("Accuracy", f"{accuracy * 100:.1f}%")
+        col2.metric("Error Rate", f"{error_rate * 100:.1f}%")
+        col3.metric("Precision", f"{precision * 100:.1f}%")
+        col4.metric("Recall", f"{recall * 100:.1f}%")
+        col5.metric("F1-Score", f"{f1 * 100:.1f}%")
+        
+        # 2. Matriz de Confusión Visual
+        st.write("**Matriz de Confusión (Datos de Prueba: 500 eventos)**")
+        labels = metricas_ml["matriz_confusion"]["labels"]
+        valores = metricas_ml["matriz_confusion"]["valores"]
+        
+        df_cm = pd.DataFrame(
+            valores, 
+            index=[f"Real: {l}" for l in labels], 
+            columns=[f"Pred: {l}" for l in labels]
+        )
+        
+        st.dataframe(df_cm, use_container_width=True)
+
+    except FileNotFoundError:
+        st.warning("No se encontró el archivo 'data/metricas_arbol_decision.json'. Verifica las rutas del proyecto.")
+    except Exception as e:
+        st.error(f"Error al cargar las métricas en la interfaz: {e}")
 
 
 if __name__ == "__main__":
