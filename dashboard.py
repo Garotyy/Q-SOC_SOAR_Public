@@ -182,6 +182,38 @@ def _inyectar_estilos() -> None:
             max-width: 980px;
             line-height: 1.5;
         }
+        .qsoc-confusion-table {
+            max-width: 620px;
+            margin-top: 0.7rem;
+            border: 1px solid rgba(148, 163, 184, 0.20);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.30);
+        }
+        .qsoc-confusion-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .qsoc-confusion-table th,
+        .qsoc-confusion-table td {
+            padding: 0.45rem 0.65rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+            text-align: center;
+        }
+        .qsoc-confusion-table th {
+            color: #bfdbfe;
+            font-weight: 650;
+            background: rgba(30, 41, 59, 0.58);
+        }
+        .qsoc-confusion-table td:first-child,
+        .qsoc-confusion-table th:first-child {
+            text-align: left;
+            color: #e2e8f0;
+        }
+        .qsoc-confusion-table tr:last-child td {
+            border-bottom: 0;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -432,37 +464,55 @@ def _mostrar_matriz_confusion(metricas_ml: dict[str, Any]) -> None:
 
     st.markdown("**Matriz de confusi\u00f3n**")
     if plt is None:
-        df_cm = pd.DataFrame(
-            valores,
-            index=[f"Real: {label}" for label in labels],
-            columns=[f"Pred: {label}" for label in labels],
-        )
-        st.dataframe(
-            df_cm.style.background_gradient(cmap="Blues", axis=None),
-            width="stretch",
-        )
-        return
+        st.info("Matplotlib no est\u00e1 disponible; se muestra solo la tabla num\u00e9rica.")
+    else:
+        fig, ax = plt.subplots(figsize=(5.8, 4.6))
+        imagen = ax.imshow(valores, cmap="Blues")
+        ax.set_title("Matriz de confusi\u00f3n del \u00e1rbol de decisi\u00f3n")
+        ax.set_xlabel("Clase predicha")
+        ax.set_ylabel("Clase real")
+        ax.set_xticks(range(len(labels)))
+        ax.set_yticks(range(len(labels)))
+        ax.set_xticklabels(labels)
+        ax.set_yticklabels(labels)
 
-    fig, ax = plt.subplots(figsize=(5.8, 4.6))
-    imagen = ax.imshow(valores, cmap="Blues")
-    ax.set_title("Matriz de confusi\u00f3n del \u00e1rbol de decisi\u00f3n")
-    ax.set_xlabel("Clase predicha")
-    ax.set_ylabel("Clase real")
-    ax.set_xticks(range(len(labels)))
-    ax.set_yticks(range(len(labels)))
-    ax.set_xticklabels(labels)
-    ax.set_yticklabels(labels)
+        maximo = max(max(fila) for fila in valores) if valores else 0
+        umbral = maximo / 2
+        for fila, valores_fila in enumerate(valores):
+            for columna, valor in enumerate(valores_fila):
+                color = "white" if valor > umbral else "black"
+                ax.text(columna, fila, str(valor), ha="center", va="center", color=color)
 
-    maximo = max(max(fila) for fila in valores) if valores else 0
-    umbral = maximo / 2
-    for fila, valores_fila in enumerate(valores):
-        for columna, valor in enumerate(valores_fila):
-            color = "white" if valor > umbral else "black"
-            ax.text(columna, fila, str(valor), ha="center", va="center", color=color)
+        fig.colorbar(imagen, ax=ax, fraction=0.046, pad=0.04)
+        fig.tight_layout()
+        st.pyplot(fig)
 
-    fig.colorbar(imagen, ax=ax, fraction=0.046, pad=0.04)
-    fig.tight_layout()
-    st.pyplot(fig)
+    _mostrar_tabla_matriz_confusion(labels, valores)
+
+
+def _mostrar_tabla_matriz_confusion(labels: list[Any], valores: list[list[Any]]) -> None:
+    total_prueba = sum(sum(int(valor) for valor in fila) for fila in valores)
+    encabezados = "".join(f"<th>Pred: {_html(label)}</th>" for label in labels)
+    filas = []
+    for label, fila in zip(labels, valores):
+        celdas = "".join(f"<td>{_html(valor)}</td>" for valor in fila)
+        filas.append(f"<tr><td>Real: {_html(label)}</td>{celdas}</tr>")
+
+    st.markdown(
+        f"""
+        <div class="qsoc-confusion-table">
+          <table>
+            <thead>
+              <tr><th>Matriz de confusi\u00f3n (datos de prueba: {total_prueba} eventos)</th>{encabezados}</tr>
+            </thead>
+            <tbody>
+              {''.join(filas)}
+            </tbody>
+          </table>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def _mostrar_incidentes_soc(df: pd.DataFrame) -> pd.DataFrame:
