@@ -1,0 +1,130 @@
+{
+  "modelo": "DecisionTreeClassifier",
+  "objetivo": "clase_evento_ml",
+  "clases": [
+    "normal",
+    "fallido",
+    "sospechoso"
+  ],
+  "total_eventos": 2000,
+  "total_entrenamiento": 1500,
+  "total_prueba": 500,
+  "parametros_modelo": {
+    "max_depth": 4,
+    "min_samples_leaf": 25,
+    "min_samples_split": 50,
+    "random_state": 42,
+    "class_weight": "balanced"
+  },
+  "features_usadas": [
+    "tipo_evento",
+    "servicio",
+    "usuario",
+    "hostname",
+    "hora_evento",
+    "es_horario_laboral",
+    "ip_origen_es_privada",
+    "usuario_privilegiado",
+    "host_critico",
+    "conteo_eventos_ip_ventana",
+    "conteo_usuarios_distintos_ip",
+    "conteo_hosts_distintos_ip",
+    "conteo_fallidos_ventana",
+    "servicio_sensible",
+    "severidad_inicial"
+  ],
+  "features_categoricas": [
+    "tipo_evento",
+    "servicio",
+    "usuario",
+    "hostname",
+    "severidad_inicial"
+  ],
+  "features_numericas": [
+    "hora_evento",
+    "es_horario_laboral",
+    "ip_origen_es_privada",
+    "usuario_privilegiado",
+    "host_critico",
+    "conteo_eventos_ip_ventana",
+    "conteo_usuarios_distintos_ip",
+    "conteo_hosts_distintos_ip",
+    "conteo_fallidos_ventana",
+    "servicio_sensible"
+  ],
+  "features_excluidas": [
+    "clase_evento_ml",
+    "id_evento",
+    "ip_destino",
+    "ip_origen",
+    "resultado",
+    "timestamp"
+  ],
+  "metricas": {
+    "accuracy": 0.934,
+    "precision_macro": 0.9294871794871794,
+    "recall_macro": 0.9452559164789381,
+    "f1_macro": 0.9320048705580853,
+    "precision_weighted": 0.9479615384615384,
+    "recall_weighted": 0.934,
+    "f1_weighted": 0.9363712096057206
+  },
+  "matriz_confusion": {
+    "labels": [
+      "normal",
+      "fallido",
+      "sospechoso"
+    ],
+    "valores": [
+      [
+        252,
+        26,
+        0
+      ],
+      [
+        0,
+        123,
+        0
+      ],
+      [
+        0,
+        7,
+        92
+      ]
+    ]
+  },
+  "classification_report": {
+    "normal": {
+      "precision": 1.0,
+      "recall": 0.9064748201438849,
+      "f1-score": 0.9509433962264151,
+      "support": 278.0
+    },
+    "fallido": {
+      "precision": 0.7884615384615384,
+      "recall": 1.0,
+      "f1-score": 0.8817204301075269,
+      "support": 123.0
+    },
+    "sospechoso": {
+      "precision": 1.0,
+      "recall": 0.9292929292929293,
+      "f1-score": 0.9633507853403142,
+      "support": 99.0
+    },
+    "accuracy": 0.934,
+    "macro avg": {
+      "precision": 0.9294871794871794,
+      "recall": 0.9452559164789381,
+      "f1-score": 0.9320048705580853,
+      "support": 500.0
+    },
+    "weighted avg": {
+      "precision": 0.9479615384615384,
+      "recall": 0.934,
+      "f1-score": 0.9363712096057206,
+      "support": 500.0
+    }
+  },
+  "classification_report_texto": "              precision    recall  f1-score   support\n\n      normal       1.00      0.91      0.95       278\n     fallido       0.79      1.00      0.88       123\n  sospechoso       1.00      0.93      0.96        99\n\n    accuracy                           0.93       500\n   macro avg       0.93      0.95      0.93       500\nweighted avg       0.95      0.93      0.94       500\n"
+}
