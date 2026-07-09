@@ -53,6 +53,19 @@ CLAVES_QWEN_RECONOCIDAS = {
     "siguiente_accion_sugerida",
 }
 
+COLORES_METRICAS = {
+    "Accuracy": "#3b82f6",
+    "Error Rate": "#f97316",
+    "Precision": "#8b5cf6",
+    "Recall": "#22c55e",
+    "F1-Score": "#14b8a6",
+}
+COLORES_CLASES = {
+    "normal": "#3b82f6",
+    "fallido": "#f59e0b",
+    "sospechoso": "#ef4444",
+}
+
 
 def _inyectar_estilos() -> None:
     """Agrega estilos compactos y compatibles con tema oscuro."""
@@ -184,7 +197,7 @@ def _inyectar_estilos() -> None:
         }
         .qsoc-confusion-table {
             max-width: 620px;
-            margin-top: 0.7rem;
+            margin: 0.7rem auto 0;
             border: 1px solid rgba(148, 163, 184, 0.20);
             border-radius: 12px;
             overflow: hidden;
@@ -410,7 +423,11 @@ def _mostrar_graficos_ml(metricas_ml: dict[str, Any], df_eventos_ml: pd.DataFram
     with col2:
         _mostrar_distribucion_clases(df_eventos_ml)
 
-    _mostrar_matriz_confusion(metricas_ml)
+    col3, col4 = st.columns(2)
+    with col3:
+        _mostrar_matriz_confusion(metricas_ml, mostrar_tabla=False)
+    with col4:
+        _mostrar_tabla_matriz_confusion_desde_metricas(metricas_ml)
 
 
 def _mostrar_grafico_metricas(metricas_ml: dict[str, Any]) -> None:
@@ -421,17 +438,35 @@ def _mostrar_grafico_metricas(metricas_ml: dict[str, Any]) -> None:
 
     df_metricas = pd.DataFrame(
         [
-            {"m\u00e9trica": "Accuracy", "valor": float(metricas.get("accuracy", 0.0))},
+            {
+                "m\u00e9trica": "Accuracy",
+                "valor": float(metricas.get("accuracy", 0.0)) * 100,
+            },
             {
                 "m\u00e9trica": "Precision",
-                "valor": float(metricas.get("precision_macro", 0.0)),
+                "valor": float(metricas.get("precision_macro", 0.0)) * 100,
             },
-            {"m\u00e9trica": "Recall", "valor": float(metricas.get("recall_macro", 0.0))},
-            {"m\u00e9trica": "F1-Score", "valor": float(metricas.get("f1_macro", 0.0))},
+            {
+                "m\u00e9trica": "Recall",
+                "valor": float(metricas.get("recall_macro", 0.0)) * 100,
+            },
+            {
+                "m\u00e9trica": "F1-Score",
+                "valor": float(metricas.get("f1_macro", 0.0)) * 100,
+            },
         ]
     )
     st.markdown("**Accuracy, Precision, Recall y F1-Score**")
-    st.bar_chart(df_metricas, x="m\u00e9trica", y="valor")
+    _mostrar_barras_coloreadas(
+        df=df_metricas,
+        categoria="m\u00e9trica",
+        valor="valor",
+        colores=COLORES_METRICAS,
+        titulo="M\u00e9tricas principales del \u00e1rbol de decisi\u00f3n",
+        etiqueta_y="Porcentaje",
+        sufijo="%",
+        limite_y=(0, 105),
+    )
 
 
 def _mostrar_distribucion_clases(df_eventos_ml: pd.DataFrame) -> None:
@@ -447,10 +482,66 @@ def _mostrar_distribucion_clases(df_eventos_ml: pd.DataFrame) -> None:
         .reset_index(name="cantidad")
     )
     st.markdown("**Distribuci\u00f3n de clases del dataset**")
-    st.bar_chart(distribucion, x="clase", y="cantidad")
+    _mostrar_barras_coloreadas(
+        df=distribucion,
+        categoria="clase",
+        valor="cantidad",
+        colores=COLORES_CLASES,
+        titulo="Distribuci\u00f3n de clases del dataset ML",
+        etiqueta_y="Cantidad de eventos",
+    )
 
 
-def _mostrar_matriz_confusion(metricas_ml: dict[str, Any]) -> None:
+def _mostrar_barras_coloreadas(
+    df: pd.DataFrame,
+    categoria: str,
+    valor: str,
+    colores: dict[str, str],
+    titulo: str,
+    etiqueta_y: str,
+    sufijo: str = "",
+    limite_y: tuple[int, int] | None = None,
+    figsize: tuple[float, float] = (6.4, 3.9),
+) -> None:
+    if plt is None:
+        st.bar_chart(df, x=categoria, y=valor)
+        return
+
+    categorias = df[categoria].astype(str).tolist()
+    valores = df[valor].astype(float).tolist()
+    colores_barras = [colores.get(item, "#60a5fa") for item in categorias]
+
+    fig, ax = plt.subplots(figsize=figsize)
+    barras = ax.bar(categorias, valores, color=colores_barras, edgecolor="#dbeafe", linewidth=0.5)
+    ax.set_title(titulo)
+    ax.set_ylabel(etiqueta_y)
+    ax.tick_params(axis="x", rotation=45)
+    ax.grid(axis="y", alpha=0.24)
+    ax.grid(axis="x", visible=False)
+
+    if limite_y is not None:
+        ax.set_ylim(*limite_y)
+
+    desplazamiento = max(valores) * 0.025 if valores else 0.5
+    for barra, valor_barra in zip(barras, valores):
+        etiqueta = f"{valor_barra:.1f}{sufijo}" if sufijo else f"{valor_barra:.0f}"
+        ax.text(
+            barra.get_x() + barra.get_width() / 2,
+            barra.get_height() + desplazamiento,
+            etiqueta,
+            ha="center",
+            va="bottom",
+            fontsize=9,
+            color="#111827",
+        )
+
+    fig.tight_layout()
+    st.pyplot(fig)
+
+
+def _mostrar_matriz_confusion(
+    metricas_ml: dict[str, Any], mostrar_tabla: bool = True
+) -> None:
     matriz = metricas_ml.get("matriz_confusion") if isinstance(metricas_ml, dict) else None
     if not isinstance(matriz, dict):
         st.info("No hay matriz de confusi\u00f3n disponible.")
@@ -466,27 +557,52 @@ def _mostrar_matriz_confusion(metricas_ml: dict[str, Any]) -> None:
     if plt is None:
         st.info("Matplotlib no est\u00e1 disponible; se muestra solo la tabla num\u00e9rica.")
     else:
-        fig, ax = plt.subplots(figsize=(5.8, 4.6))
+        fig, ax = plt.subplots(figsize=(4.5, 3.5))
         imagen = ax.imshow(valores, cmap="Blues")
-        ax.set_title("Matriz de confusi\u00f3n del \u00e1rbol de decisi\u00f3n")
-        ax.set_xlabel("Clase predicha")
-        ax.set_ylabel("Clase real")
+        ax.set_title("Matriz de confusi\u00f3n del \u00e1rbol de decisi\u00f3n", fontsize=10)
+        ax.set_xlabel("Clase predicha", fontsize=9)
+        ax.set_ylabel("Clase real", fontsize=9)
         ax.set_xticks(range(len(labels)))
         ax.set_yticks(range(len(labels)))
-        ax.set_xticklabels(labels)
-        ax.set_yticklabels(labels)
+        ax.set_xticklabels(labels, fontsize=8)
+        ax.set_yticklabels(labels, fontsize=8)
 
         maximo = max(max(fila) for fila in valores) if valores else 0
         umbral = maximo / 2
         for fila, valores_fila in enumerate(valores):
             for columna, valor in enumerate(valores_fila):
                 color = "white" if valor > umbral else "black"
-                ax.text(columna, fila, str(valor), ha="center", va="center", color=color)
+                ax.text(
+                    columna,
+                    fila,
+                    str(valor),
+                    ha="center",
+                    va="center",
+                    color=color,
+                    fontsize=9,
+                )
 
         fig.colorbar(imagen, ax=ax, fraction=0.046, pad=0.04)
         fig.tight_layout()
         st.pyplot(fig)
 
+    if mostrar_tabla:
+        _mostrar_tabla_matriz_confusion(labels, valores)
+
+
+def _mostrar_tabla_matriz_confusion_desde_metricas(metricas_ml: dict[str, Any]) -> None:
+    matriz = metricas_ml.get("matriz_confusion") if isinstance(metricas_ml, dict) else None
+    if not isinstance(matriz, dict):
+        st.info("No hay tabla de matriz de confusi\u00f3n disponible.")
+        return
+
+    labels = matriz.get("labels", [])
+    valores = matriz.get("valores", [])
+    if not labels or not valores:
+        st.info("La tabla de matriz de confusi\u00f3n est\u00e1 vac\u00eda.")
+        return
+
+    st.markdown("**Tabla de matriz de confusi\u00f3n**")
     _mostrar_tabla_matriz_confusion(labels, valores)
 
 
@@ -667,11 +783,21 @@ def _mostrar_prediccion_ml(prediccion: Any) -> None:
         if isinstance(probabilidades, dict) and probabilidades:
             df_prob = pd.DataFrame(
                 [
-                    {"clase": clase, "probabilidad": valor}
+                    {"clase": clase, "probabilidad": float(valor) * 100}
                     for clase, valor in probabilidades.items()
                 ]
             )
-            st.bar_chart(df_prob, x="clase", y="probabilidad", height=190)
+            _mostrar_barras_coloreadas(
+                df=df_prob,
+                categoria="clase",
+                valor="probabilidad",
+                colores=COLORES_CLASES,
+                titulo="Probabilidades por clase",
+                etiqueta_y="Probabilidad",
+                sufijo="%",
+                limite_y=(0, 105),
+                figsize=(4.8, 2.8),
+            )
 
 
 def _mostrar_lista_en_tarjeta(valores: Any, ordenada: bool = False) -> None:
