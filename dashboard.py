@@ -684,7 +684,7 @@ def _mostrar_detalle_incidente(
     id_seleccionado = st.selectbox("Seleccionar incidente", lista_opciones)
 
     if id_seleccionado == "Vista General":
-            st.markdown("### 📊 Panorama Global de Incidentes")
+            st.markdown("### Panorama Global de Incidentes")
             st.info("Estas métricas de Machine Learning reflejan el promedio de los incidentes mostrados actualmente en la tabla superior.")
             
             # Filtrar los reportes que están actualmente visibles en la tabla
