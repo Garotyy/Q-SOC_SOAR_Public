@@ -683,6 +683,7 @@ def _mostrar_detalle_incidente(
     
     id_seleccionado = st.selectbox("Seleccionar incidente", lista_opciones)
 
+<<<<<<< HEAD
     # 3. Lógica para la Vista General (Nuevo gráfico de Escalamiento/Reducción de Carga)
     if id_seleccionado == "Vista General":
         st.markdown("### Decisión de Escalamiento y Reducción de Carga")
@@ -781,6 +782,33 @@ def _mostrar_detalle_incidente(
             
         return
 
+=======
+    if id_seleccionado == "Vista General":
+        st.markdown("Panorama Global de Incidentes")
+        st.info("Estas gráficas reflejan el total de incidentes mostrados actualmente en la tabla superior.")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.write("**Distribución por Severidad**")
+            if "severidad" in df_filtrado.columns:
+                # Contamos y graficamos la severidad, usando el color rojo para alerta
+                st.bar_chart(df_filtrado["severidad"].value_counts(), color="#ef4444")
+            else:
+                st.write("Sin datos.")
+                
+        with col2:
+            st.write("**Distribución por Tipo de Incidente**")
+            if "tipo_incidente" in df_filtrado.columns:
+                # Contamos y graficamos los tipos de incidentes, usando color azul
+                st.bar_chart(df_filtrado["tipo_incidente"].value_counts(), color="#3b82f6")
+            else:
+                st.write("Sin datos.")
+                
+        return
+
+    # 4. Lógica original para cuando se selecciona un incidente específico
+>>>>>>> ca8aa19 (feat: agregar vista general interactiva y actualizar dependencias)
     reporte = next(
         reporte for reporte in reportes if str(reporte.get("id_alerta")) == id_seleccionado
     )
