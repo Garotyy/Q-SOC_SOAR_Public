@@ -676,10 +676,37 @@ def _ordenar_incidentes(df: pd.DataFrame) -> pd.DataFrame:
 def _mostrar_detalle_incidente(
     reportes: list[dict[str, Any]], df_filtrado: pd.DataFrame
 ) -> None:
-    st.subheader("Detalle del incidente seleccionado")
+    st.subheader("Panel de visualización de incidentes")
 
     ids_alerta = df_filtrado["id_alerta"].astype(str).tolist()
-    id_seleccionado = st.selectbox("Seleccionar incidente", ids_alerta)
+    lista_opciones = ["Vista General"] + ids_alerta
+    
+    id_seleccionado = st.selectbox("Seleccionar incidente", lista_opciones)
+
+    if id_seleccionado == "Vista General":
+        st.markdown("Panorama Global de Incidentes")
+        st.info("Estas gráficas reflejan el total de incidentes mostrados actualmente en la tabla superior.")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.write("**Distribución por Severidad**")
+            if "severidad" in df_filtrado.columns:
+                # Contamos y graficamos la severidad, usando el color rojo para alerta
+                st.bar_chart(df_filtrado["severidad"].value_counts(), color="#ef4444")
+            else:
+                st.write("Sin datos.")
+                
+        with col2:
+            st.write("**Distribución por Tipo de Incidente**")
+            if "tipo_incidente" in df_filtrado.columns:
+                # Contamos y graficamos los tipos de incidentes, usando color azul
+                st.bar_chart(df_filtrado["tipo_incidente"].value_counts(), color="#3b82f6")
+            else:
+                st.write("Sin datos.")
+                
+        return
+
     reporte = next(
         reporte for reporte in reportes if str(reporte.get("id_alerta")) == id_seleccionado
     )
