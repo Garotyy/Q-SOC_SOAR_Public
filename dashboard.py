@@ -684,28 +684,79 @@ def _mostrar_detalle_incidente(
     id_seleccionado = st.selectbox("Seleccionar incidente", lista_opciones)
 
     if id_seleccionado == "Vista General":
-        st.markdown("Panorama Global de Incidentes")
-        st.info("Estas gráficas reflejan el total de incidentes mostrados actualmente en la tabla superior.")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.write("**Distribución por Severidad**")
-            if "severidad" in df_filtrado.columns:
-                # Contamos y graficamos la severidad, usando el color rojo para alerta
-                st.bar_chart(df_filtrado["severidad"].value_counts(), color="#ef4444")
-            else:
-                st.write("Sin datos.")
-                
-        with col2:
-            st.write("**Distribución por Tipo de Incidente**")
-            if "tipo_incidente" in df_filtrado.columns:
-                # Contamos y graficamos los tipos de incidentes, usando color azul
-                st.bar_chart(df_filtrado["tipo_incidente"].value_counts(), color="#3b82f6")
-            else:
-                st.write("Sin datos.")
-                
-        return
+            st.markdown("### 📊 Panorama Global de Incidentes")
+            st.info("Estas métricas de Machine Learning reflejan el promedio de los incidentes mostrados actualmente en la tabla superior.")
+            
+            # Filtrar los reportes que están actualmente visibles en la tabla
+            ids_actuales = set(df_filtrado["id_alerta"].astype(str))
+            reportes_filtrados = [r for r in reportes if str(r.get("id_alerta")) in ids_actuales]
+
+            # Variables para calcular el promedio global de probabilidades
+            clases_predichas = []
+            probs_acumuladas = {"normal": 0.0, "fallido": 0.0, "sospechoso": 0.0}
+            conteo_probs = 0
+
+            # Extraer los datos ML de cada reporte
+            for r in reportes_filtrados:
+                pred = r.get("prediccion_ml", {})
+                if isinstance(pred, dict) and pred.get("estado") != "error":
+                    clase = pred.get("clase_predicha")
+                    if clase:
+                        clases_predichas.append(clase)
+                    
+                    probabilidades = pred.get("probabilidades")
+                    if isinstance(probabilidades, dict) and probabilidades:
+                        probs_acumuladas["normal"] += float(probabilidades.get("normal", 0.0))
+                        probs_acumuladas["fallido"] += float(probabilidades.get("fallido", 0.0))
+                        probs_acumuladas["sospechoso"] += float(probabilidades.get("sospechoso", 0.0))
+                        conteo_probs += 1
+
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("**Distribución de Clases Predichas**")
+                if clases_predichas:
+                    # Contamos cuántos cayeron en cada clase
+                    df_clases = pd.DataFrame(clases_predichas, columns=["clase"])
+                    df_conteo = df_clases.value_counts().reset_index(name="cantidad")
+                    
+                    # Usamos tu propia función de gráficos para mantener el diseño perfecto
+                    _mostrar_barras_coloreadas(
+                        df=df_conteo,
+                        categoria="clase",
+                        valor="cantidad",
+                        colores=COLORES_CLASES,
+                        titulo="Total de incidentes por clase",
+                        etiqueta_y="Cantidad"
+                    )
+                else:
+                    st.write("Sin datos ML disponibles.")
+                    
+            with col2:
+                st.markdown("**Probabilidad General por Clase (Promedio)**")
+                if conteo_probs > 0:
+                    # Calculamos el promedio global en porcentaje
+                    df_probs = pd.DataFrame([
+                        {"clase": "normal", "probabilidad": (probs_acumuladas["normal"] / conteo_probs) * 100},
+                        {"clase": "fallido", "probabilidad": (probs_acumuladas["fallido"] / conteo_probs) * 100},
+                        {"clase": "sospechoso", "probabilidad": (probs_acumuladas["sospechoso"] / conteo_probs) * 100},
+                    ])
+                    
+                    # Reutilizamos tu función para que se vea igual al gráfico individual
+                    _mostrar_barras_coloreadas(
+                        df=df_probs,
+                        categoria="clase",
+                        valor="probabilidad",
+                        colores=COLORES_CLASES,
+                        titulo="Probabilidad Promedio Global",
+                        etiqueta_y="Probabilidad",
+                        sufijo="%",
+                        limite_y=(0, 105)
+                    )
+                else:
+                    st.write("Sin probabilidades disponibles.")
+                    
+            return
 
     reporte = next(
         reporte for reporte in reportes if str(reporte.get("id_alerta")) == id_seleccionado
