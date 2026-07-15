@@ -115,11 +115,11 @@ def crear_pipeline_arbol_decision(random_state: int = RANDOM_STATE) -> Pipeline:
     )
 
     modelo = DecisionTreeClassifier(
-        max_depth=4,
-        min_samples_leaf=25,
+        max_depth=3,
+        min_samples_leaf=20,
         min_samples_split=50,
         random_state=random_state,
-        class_weight="balanced",
+        class_weight="balanced"
     )
 
     return Pipeline(

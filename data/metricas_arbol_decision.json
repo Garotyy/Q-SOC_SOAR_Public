@@ -61,13 +61,13 @@
     "timestamp"
   ],
   "metricas": {
-    "accuracy": 0.934,
-    "precision_macro": 0.9294871794871794,
-    "recall_macro": 0.9452559164789381,
-    "f1_macro": 0.9320048705580853,
-    "precision_weighted": 0.9479615384615384,
-    "recall_weighted": 0.934,
-    "f1_weighted": 0.9363712096057206
+    "accuracy": 0.944,
+    "precision_macro": 0.9390244975150636,
+    "recall_macro": 0.9452071749843288,
+    "f1_macro": 0.9398045314321354,
+    "precision_weighted": 0.9503208338830981,
+    "recall_weighted": 0.944,
+    "f1_weighted": 0.9453459562243377
   },
   "matriz_confusion": {
     "labels": [
@@ -77,13 +77,13 @@
     ],
     "valores": [
       [
-        252,
-        26,
+        261,
+        17,
         0
       ],
       [
-        0,
-        123,
+        4,
+        119,
         0
       ],
       [
@@ -95,15 +95,15 @@
   },
   "classification_report": {
     "normal": {
-      "precision": 1.0,
-      "recall": 0.9064748201438849,
-      "f1-score": 0.9509433962264151,
+      "precision": 0.9849056603773585,
+      "recall": 0.9388489208633094,
+      "f1-score": 0.9613259668508287,
       "support": 278.0
     },
     "fallido": {
-      "precision": 0.7884615384615384,
-      "recall": 1.0,
-      "f1-score": 0.8817204301075269,
+      "precision": 0.8321678321678322,
+      "recall": 0.967479674796748,
+      "f1-score": 0.8947368421052632,
       "support": 123.0
     },
     "sospechoso": {
@@ -112,19 +112,19 @@
       "f1-score": 0.9633507853403142,
       "support": 99.0
     },
-    "accuracy": 0.934,
+    "accuracy": 0.944,
     "macro avg": {
-      "precision": 0.9294871794871794,
-      "recall": 0.9452559164789381,
-      "f1-score": 0.9320048705580853,
+      "precision": 0.9390244975150636,
+      "recall": 0.9452071749843288,
+      "f1-score": 0.9398045314321354,
       "support": 500.0
     },
     "weighted avg": {
-      "precision": 0.9479615384615384,
-      "recall": 0.934,
-      "f1-score": 0.9363712096057206,
+      "precision": 0.9503208338830981,
+      "recall": 0.944,
+      "f1-score": 0.9453459562243377,
       "support": 500.0
     }
   },
-  "classification_report_texto": "              precision    recall  f1-score   support\n\n      normal       1.00      0.91      0.95       278\n     fallido       0.79      1.00      0.88       123\n  sospechoso       1.00      0.93      0.96        99\n\n    accuracy                           0.93       500\n   macro avg       0.93      0.95      0.93       500\nweighted avg       0.95      0.93      0.94       500\n"
+  "classification_report_texto": "              precision    recall  f1-score   support\n\n      normal       0.98      0.94      0.96       278\n     fallido       0.83      0.97      0.89       123\n  sospechoso       1.00      0.93      0.96        99\n\n    accuracy                           0.94       500\n   macro avg       0.94      0.95      0.94       500\nweighted avg       0.95      0.94      0.95       500\n"
 }
