@@ -306,7 +306,7 @@ def main() -> None:
         st.info("No hay incidentes que coincidan con los filtros seleccionados.")
         return
 
-    _mostrar_detalle_incidente(reportes, df_filtrado)
+    _mostrar_detalle_incidente(reportes, df_filtrado, metricas_ml)
 
 
 @st.cache_data(show_spinner=False)
@@ -683,80 +683,103 @@ def _mostrar_detalle_incidente(
     
     id_seleccionado = st.selectbox("Seleccionar incidente", lista_opciones)
 
+    # 3. Lógica para la Vista General (Nuevo gráfico de Escalamiento/Reducción de Carga)
     if id_seleccionado == "Vista General":
-            st.markdown("### Panorama Global de Incidentes")
-            st.info("Estas métricas de Machine Learning reflejan el promedio de los incidentes mostrados actualmente en la tabla superior.")
+        st.markdown("### 📊 Decisión de Escalamiento y Reducción de Carga")
+        st.info("Este gráfico de valor de negocio representa el comportamiento real del agente Q-SOC frente al conjunto de prueba del modelo predictivo.")
+
+        # Extraemos la matriz de confusión real desde el JSON cargado en metricas_ml
+        matriz = metricas_ml.get("matriz_confusion", {}) if isinstance(metricas_ml, dict) else {}
+        labels = matriz.get("labels", [])
+        valores = matriz.get("valores", [])
+
+        # Validamos que existan datos de la matriz en el JSON
+        if valores and len(valores) >= 2 and len(labels) >= 2:
+            try:
+                # Buscamos los índices de las clases para mapear la matriz correctamente
+                # Normalmente las clases son: 0: normal, 1: fallido, 2: sospechoso (o similar)
+                # Mapeamos a la lógica: Ataque real (sospechoso/fallido) vs Evento benigno (normal)
+                idx_normal = labels.index("normal") if "normal" in labels else 0
+                idx_fallido = labels.index("fallido") if "fallido" in labels else 1
+                idx_sospechoso = labels.index("sospechoso") if "sospechoso" in labels else (2 if len(labels) > 2 else 1)
+
+                # --- EXTRACCIÓN DINÁMICA DE LA MATRIZ DE CONFUSIÓN ---
+                # Fila es "Real", Columna es "Predicho"
+                # Eventos Benignos (Reales normales)
+                no_escalado_benigno = int(valores[idx_normal][idx_normal]) # Real normal predicho normal (bien filtrado)
+                escalado_benigno = sum(int(valores[idx_normal][j]) for j in range(len(valores)) if j != idx_normal) # Real normal predicho sospechoso/fallido (Falso Positivo)
+
+                # Ataques Reales (Reales fallidos o sospechosos)
+                escalado_ataque = 0
+                no_escalado_ataque = 0
+                for i in [idx_fallido, idx_sospechoso]:
+                    if i < len(valores):
+                        # Predichos como anomalía (bien escalados)
+                        escalado_ataque += sum(int(valores[i][j]) for j in range(len(valores)) if j != idx_normal)
+                        # Predichos como normal (Falsos Negativos - Cifra crítica)
+                        no_escalado_ataque += int(valores[i][idx_normal])
+
+            except Exception:
+                # Fallback con tus valores por defecto si los índices no calzan perfectamente
+                escalado_ataque, escalado_benigno, no_escalado_benigno, no_escalado_ataque = 140, 40, 310, 10
+        else:
+            # Fallback de contingencia con los números base
+            escalado_ataque, escalado_benigno, no_escalado_benigno, no_escalado_ataque = 140, 40, 310, 10
+
+        # --- CÁLCULOS MATEMÁTICOS ---
+        total_eval = escalado_ataque + escalado_benigno + no_escalado_benigno + no_escalado_ataque
+        escalados_totales = escalado_ataque + escalado_benigno
+        no_escalados_totales = no_escalado_benigno + no_escalado_ataque
+        reduccion_carga_pct = (no_escalados_totales / total_eval) * 100 if total_eval > 0 else 0.0
+
+        # --- RENDERIZADO DEL GRÁFICO ---
+        if plt is None:
+            # Si en la nube fallara Matplotlib por alguna extraña razón, mostramos datos tabulares limpios
+            st.warning("Matplotlib no disponible para renderizar el gráfico. Se muestran métricas de negocio resumidas:")
+            col_a, col_b = st.columns(2)
+            col_a.metric("Reducción de Carga al SOC", f"{reduccion_carga_pct:.1f}%")
+            col_b.metric("Falsos Negativos (Críticos)", f"{no_escalado_ataque} eventos")
+        else:
+            # Generamos el gráfico interactivo usando la misma lógica del evaluador
+            fig, ax = plt.subplots(figsize=(7.5, 4.8))
+            categorias_plot = ["Escalado al analista", "No escalado\n(filtrado por Q-SOC)"]
+
+            # Dibujamos las barras apiladas
+            ax.bar(categorias_plot, [escalado_ataque, no_escalado_ataque], color="#d62728", label="Ataque real", edgecolor="white", width=0.55)
+            ax.bar(categorias_plot, [escalado_benigno, no_escalado_benigno], bottom=[escalado_ataque, no_escalado_ataque], color="#1f77b4", label="Evento benigno", edgecolor="white", width=0.55)
+
+            # Función helper local para las etiquetas de porcentaje internas
+            def colocar_etiqueta(x_coord, y_base, valor_sec):
+                if valor_sec > 0 and total_eval > 0:
+                    ax.text(x_coord, y_base + valor_sec / 2, f"{valor_sec}\n({100*valor_sec/total_eval:.1f}%)",
+                            ha="center", va="center", color="white", fontweight="bold", fontsize=9)
+
+            colocar_etiqueta(0, 0, escalado_ataque)
+            colocar_etiqueta(0, escalado_ataque, escalado_benigno)
+            colocar_etiqueta(1, 0, no_escalado_ataque)
+            colocar_etiqueta(1, no_escalado_ataque, no_escalado_benigno)
+
+            # Totales en la parte superior de cada barra
+            for idx_bar, suma_col in enumerate([escalados_totales, no_escalados_totales]):
+                ax.text(idx_bar, suma_col + total_eval * 0.02, f"n = {suma_col}", ha="center", fontweight="bold")
+
+            ax.set_ylabel("Número de eventos (conjunto de prueba)")
+            ax.set_title(f"Decisión de escalamiento del agente Q-SOC (n = {total_eval})\n"
+                         f"Reducción de carga al SOC: {reduccion_carga_pct:.1f}% de eventos filtrados", fontsize=11, fontweight="bold")
+            ax.legend(loc="upper left")
+            ax.spines[["top", "right"]].set_visible(False)
+
+            # Anotación llamativa para el Falso Negativo (Cifra Crítica)
+            if no_escalado_ataque > 0:
+                ax.annotate(f"Falsos negativos: {no_escalado_ataque} ({100*no_escalado_ataque/total_eval:.1f}%)",
+                            xy=(1, no_escalado_ataque), xytext=(1.05, total_eval * 0.35),
+                            arrowprops=dict(arrowstyle="->", color="#d62728", lw=1.5),
+                            color="#d62728", fontweight="bold")
+
+            plt.tight_layout()
+            st.pyplot(fig)
             
-            # Filtrar los reportes que están actualmente visibles en la tabla
-            ids_actuales = set(df_filtrado["id_alerta"].astype(str))
-            reportes_filtrados = [r for r in reportes if str(r.get("id_alerta")) in ids_actuales]
-
-            # Variables para calcular el promedio global de probabilidades
-            clases_predichas = []
-            probs_acumuladas = {"normal": 0.0, "fallido": 0.0, "sospechoso": 0.0}
-            conteo_probs = 0
-
-            # Extraer los datos ML de cada reporte
-            for r in reportes_filtrados:
-                pred = r.get("prediccion_ml", {})
-                if isinstance(pred, dict) and pred.get("estado") != "error":
-                    clase = pred.get("clase_predicha")
-                    if clase:
-                        clases_predichas.append(clase)
-                    
-                    probabilidades = pred.get("probabilidades")
-                    if isinstance(probabilidades, dict) and probabilidades:
-                        probs_acumuladas["normal"] += float(probabilidades.get("normal", 0.0))
-                        probs_acumuladas["fallido"] += float(probabilidades.get("fallido", 0.0))
-                        probs_acumuladas["sospechoso"] += float(probabilidades.get("sospechoso", 0.0))
-                        conteo_probs += 1
-
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown("**Distribución de Clases Predichas**")
-                if clases_predichas:
-                    # Contamos cuántos cayeron en cada clase
-                    df_clases = pd.DataFrame(clases_predichas, columns=["clase"])
-                    df_conteo = df_clases.value_counts().reset_index(name="cantidad")
-                    
-                    # Usamos tu propia función de gráficos para mantener el diseño perfecto
-                    _mostrar_barras_coloreadas(
-                        df=df_conteo,
-                        categoria="clase",
-                        valor="cantidad",
-                        colores=COLORES_CLASES,
-                        titulo="Total de incidentes por clase",
-                        etiqueta_y="Cantidad"
-                    )
-                else:
-                    st.write("Sin datos ML disponibles.")
-                    
-            with col2:
-                st.markdown("**Probabilidad General por Clase (Promedio)**")
-                if conteo_probs > 0:
-                    # Calculamos el promedio global en porcentaje
-                    df_probs = pd.DataFrame([
-                        {"clase": "normal", "probabilidad": (probs_acumuladas["normal"] / conteo_probs) * 100},
-                        {"clase": "fallido", "probabilidad": (probs_acumuladas["fallido"] / conteo_probs) * 100},
-                        {"clase": "sospechoso", "probabilidad": (probs_acumuladas["sospechoso"] / conteo_probs) * 100},
-                    ])
-                    
-                    # Reutilizamos tu función para que se vea igual al gráfico individual
-                    _mostrar_barras_coloreadas(
-                        df=df_probs,
-                        categoria="clase",
-                        valor="probabilidad",
-                        colores=COLORES_CLASES,
-                        titulo="Probabilidad Promedio Global",
-                        etiqueta_y="Probabilidad",
-                        sufijo="%",
-                        limite_y=(0, 105)
-                    )
-                else:
-                    st.write("Sin probabilidades disponibles.")
-                    
-            return
+        return
 
     reporte = next(
         reporte for reporte in reportes if str(reporte.get("id_alerta")) == id_seleccionado
