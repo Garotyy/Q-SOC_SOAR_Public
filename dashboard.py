@@ -16,7 +16,6 @@ try:
 except Exception:
     plt = None
 
-
 PROJECT_ROOT = Path(__file__).resolve().parent
 DATA_DIR = PROJECT_ROOT / "data"
 RUTA_REPORTES = DATA_DIR / "reportes_generados.json"
@@ -65,7 +64,6 @@ COLORES_CLASES = {
     "fallido": "#f59e0b",
     "sospechoso": "#ef4444",
 }
-
 
 def _inyectar_estilos() -> None:
     """Agrega estilos compactos y compatibles con tema oscuro."""
@@ -232,7 +230,6 @@ def _inyectar_estilos() -> None:
         unsafe_allow_html=True,
     )
 
-
 def _mostrar_encabezado() -> None:
     st.markdown(
         """
@@ -249,7 +246,6 @@ def _mostrar_encabezado() -> None:
         unsafe_allow_html=True,
     )
 
-
 def _tarjeta_metrica(titulo: str, valor: Any, nota: str = "") -> None:
     nota_html = f'<div class="qsoc-card-note">{_html(nota)}</div>' if nota else ""
     st.markdown(
@@ -263,10 +259,8 @@ def _tarjeta_metrica(titulo: str, valor: Any, nota: str = "") -> None:
         unsafe_allow_html=True,
     )
 
-
 def _html(valor: Any) -> str:
     return html.escape(str(valor))
-
 
 def main() -> None:
     st.set_page_config(
@@ -308,7 +302,6 @@ def main() -> None:
 
     _mostrar_detalle_incidente(reportes, df_filtrado, metricas_ml)
 
-
 @st.cache_data(show_spinner=False)
 def cargar_datos_dashboard() -> dict[str, Any]:
     """Carga archivos ya generados sin ejecutar el pipeline principal."""
@@ -321,7 +314,6 @@ def cargar_datos_dashboard() -> dict[str, Any]:
         "existe_eventos_ml": RUTA_EVENTOS_ML.exists(),
     }
 
-
 def _cargar_json_si_existe(ruta: Path, valor_por_defecto: Any) -> Any:
     if not ruta.exists():
         return valor_por_defecto
@@ -332,7 +324,6 @@ def _cargar_json_si_existe(ruta: Path, valor_por_defecto: Any) -> Any:
     except Exception:
         return valor_por_defecto
 
-
 def _cargar_csv_si_existe(ruta: Path) -> pd.DataFrame:
     if not ruta.exists():
         return pd.DataFrame()
@@ -341,7 +332,6 @@ def _cargar_csv_si_existe(ruta: Path) -> pd.DataFrame:
         return pd.read_csv(ruta)
     except Exception:
         return pd.DataFrame()
-
 
 def _mostrar_estado_archivos(datos: dict[str, Any]) -> None:
     faltantes = []
@@ -354,7 +344,6 @@ def _mostrar_estado_archivos(datos: dict[str, Any]) -> None:
 
     if faltantes:
         st.warning("Archivos no disponibles: " + ", ".join(faltantes))
-
 
 def _mostrar_kpis_principales(df: pd.DataFrame) -> None:
     st.subheader("KPIs principales")
@@ -386,7 +375,6 @@ def _mostrar_kpis_principales(df: pd.DataFrame) -> None:
             f"{porcentaje_mitre:.1f}%",
         )
 
-
 def _mostrar_evaluacion_modelo(metricas_ml: dict[str, Any]) -> None:
     st.subheader("Evaluaci\u00f3n del modelo predictivo")
     metricas = metricas_ml.get("metricas") if isinstance(metricas_ml, dict) else None
@@ -412,7 +400,6 @@ def _mostrar_evaluacion_modelo(metricas_ml: dict[str, Any]) -> None:
     with col5:
         _tarjeta_metrica("F1-Score", f"{f1 * 100:.1f}%")
 
-
 def _mostrar_graficos_ml(metricas_ml: dict[str, Any], df_eventos_ml: pd.DataFrame) -> None:
     st.subheader("Gr\u00e1ficos ML")
     col1, col2 = st.columns(2)
@@ -428,7 +415,6 @@ def _mostrar_graficos_ml(metricas_ml: dict[str, Any], df_eventos_ml: pd.DataFram
         _mostrar_matriz_confusion(metricas_ml, mostrar_tabla=False)
     with col4:
         _mostrar_tabla_matriz_confusion_desde_metricas(metricas_ml)
-
 
 def _mostrar_grafico_metricas(metricas_ml: dict[str, Any]) -> None:
     metricas = metricas_ml.get("metricas") if isinstance(metricas_ml, dict) else None
@@ -468,7 +454,6 @@ def _mostrar_grafico_metricas(metricas_ml: dict[str, Any]) -> None:
         limite_y=(0, 105),
     )
 
-
 def _mostrar_distribucion_clases(df_eventos_ml: pd.DataFrame) -> None:
     if df_eventos_ml.empty or "clase_evento_ml" not in df_eventos_ml.columns:
         st.info("No hay dataset ML disponible para distribuci\u00f3n de clases.")
@@ -490,7 +475,6 @@ def _mostrar_distribucion_clases(df_eventos_ml: pd.DataFrame) -> None:
         titulo="Distribuci\u00f3n de clases del dataset ML",
         etiqueta_y="Cantidad de eventos",
     )
-
 
 def _mostrar_barras_coloreadas(
     df: pd.DataFrame,
@@ -537,7 +521,6 @@ def _mostrar_barras_coloreadas(
 
     fig.tight_layout()
     st.pyplot(fig)
-
 
 def _mostrar_matriz_confusion(
     metricas_ml: dict[str, Any], mostrar_tabla: bool = True
@@ -589,7 +572,6 @@ def _mostrar_matriz_confusion(
     if mostrar_tabla:
         _mostrar_tabla_matriz_confusion(labels, valores)
 
-
 def _mostrar_tabla_matriz_confusion_desde_metricas(metricas_ml: dict[str, Any]) -> None:
     matriz = metricas_ml.get("matriz_confusion") if isinstance(metricas_ml, dict) else None
     if not isinstance(matriz, dict):
@@ -604,7 +586,6 @@ def _mostrar_tabla_matriz_confusion_desde_metricas(metricas_ml: dict[str, Any]) 
 
     st.markdown("**Tabla de matriz de confusi\u00f3n**")
     _mostrar_tabla_matriz_confusion(labels, valores)
-
 
 def _mostrar_tabla_matriz_confusion(labels: list[Any], valores: list[list[Any]]) -> None:
     total_prueba = sum(sum(int(valor) for valor in fila) for fila in valores)
@@ -629,7 +610,6 @@ def _mostrar_tabla_matriz_confusion(labels: list[Any], valores: list[list[Any]])
         """,
         unsafe_allow_html=True,
     )
-
 
 def _mostrar_incidentes_soc(df: pd.DataFrame) -> pd.DataFrame:
     st.subheader("Incidentes SOC")
@@ -659,7 +639,6 @@ def _mostrar_incidentes_soc(df: pd.DataFrame) -> pd.DataFrame:
     st.dataframe(df_filtrado[columnas_disponibles], width="stretch", hide_index=True)
     return df_filtrado
 
-
 def _ordenar_incidentes(df: pd.DataFrame) -> pd.DataFrame:
     orden_prioridad = {"P1": 1, "P2": 2, "P3": 3, "P4": 4}
     df_ordenado = df.copy()
@@ -672,7 +651,6 @@ def _ordenar_incidentes(df: pd.DataFrame) -> pd.DataFrame:
         columnas_orden.append("timestamp")
     return df_ordenado.sort_values(columnas_orden).drop(columns=["_orden_prioridad"])
 
-
 def _mostrar_detalle_incidente(
     reportes: list[dict[str, Any]], df_filtrado: pd.DataFrame, metricas_ml: dict[str, Any]
 ) -> None:
@@ -683,8 +661,6 @@ def _mostrar_detalle_incidente(
     
     id_seleccionado = st.selectbox("Seleccionar incidente", lista_opciones)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     # 3. Lógica para la Vista General (Nuevo gráfico de Escalamiento/Reducción de Carga)
     if id_seleccionado == "Vista General":
         st.markdown("### Decisión de Escalamiento y Reducción de Carga")
@@ -783,112 +759,6 @@ def _mostrar_detalle_incidente(
             
         return
 
-=======
-=======
-    # 3. Lógica para la Vista General (Nuevo gráfico de Escalamiento/Reducción de Carga)
->>>>>>> 50f5a2f (feat: actualizar dashboard, métricas y ajustar hiperparámetros del modelo)
-    if id_seleccionado == "Vista General":
-        st.markdown("Decisión de Escalamiento y Reducción de Carga")
-        st.info("Este gráfico de valor de negocio representa el comportamiento real del agente Q-SOC frente al conjunto de prueba del modelo predictivo.")
-
-        # Extraemos la matriz de confusión real desde el JSON cargado en metricas_ml
-        matriz = metricas_ml.get("matriz_confusion", {}) if isinstance(metricas_ml, dict) else {}
-        labels = matriz.get("labels", [])
-        valores = matriz.get("valores", [])
-
-        # Validamos que existan datos de la matriz en el JSON
-        if valores and len(valores) >= 2 and len(labels) >= 2:
-            try:
-                # Buscamos los índices de las clases para mapear la matriz correctamente
-                # Normalmente las clases son: 0: normal, 1: fallido, 2: sospechoso (o similar)
-                # Mapeamos a la lógica: Ataque real (sospechoso/fallido) vs Evento benigno (normal)
-                idx_normal = labels.index("normal") if "normal" in labels else 0
-                idx_fallido = labels.index("fallido") if "fallido" in labels else 1
-                idx_sospechoso = labels.index("sospechoso") if "sospechoso" in labels else (2 if len(labels) > 2 else 1)
-
-                # --- EXTRACCIÓN DINÁMICA DE LA MATRIZ DE CONFUSIÓN ---
-                # Fila es "Real", Columna es "Predicho"
-                # Eventos Benignos (Reales normales)
-                no_escalado_benigno = int(valores[idx_normal][idx_normal]) # Real normal predicho normal (bien filtrado)
-                escalado_benigno = sum(int(valores[idx_normal][j]) for j in range(len(valores)) if j != idx_normal) # Real normal predicho sospechoso/fallido (Falso Positivo)
-
-                # Ataques Reales (Reales fallidos o sospechosos)
-                escalado_ataque = 0
-                no_escalado_ataque = 0
-                for i in [idx_fallido, idx_sospechoso]:
-                    if i < len(valores):
-                        # Predichos como anomalía (bien escalados)
-                        escalado_ataque += sum(int(valores[i][j]) for j in range(len(valores)) if j != idx_normal)
-                        # Predichos como normal (Falsos Negativos - Cifra crítica)
-                        no_escalado_ataque += int(valores[i][idx_normal])
-
-            except Exception:
-                # Fallback con tus valores por defecto si los índices no calzan perfectamente
-                escalado_ataque, escalado_benigno, no_escalado_benigno, no_escalado_ataque = 140, 40, 310, 10
-        else:
-            # Fallback de contingencia con los números base
-            escalado_ataque, escalado_benigno, no_escalado_benigno, no_escalado_ataque = 140, 40, 310, 10
-
-        # --- CÁLCULOS MATEMÁTICOS ---
-        total_eval = escalado_ataque + escalado_benigno + no_escalado_benigno + no_escalado_ataque
-        escalados_totales = escalado_ataque + escalado_benigno
-        no_escalados_totales = no_escalado_benigno + no_escalado_ataque
-        reduccion_carga_pct = (no_escalados_totales / total_eval) * 100 if total_eval > 0 else 0.0
-
-        # --- RENDERIZADO DEL GRÁFICO ---
-        if plt is None:
-            # Si en la nube fallara Matplotlib por alguna extraña razón, mostramos datos tabulares limpios
-            st.warning("Matplotlib no disponible para renderizar el gráfico. Se muestran métricas de negocio resumidas:")
-            col_a, col_b = st.columns(2)
-            col_a.metric("Reducción de Carga al SOC", f"{reduccion_carga_pct:.1f}%")
-            col_b.metric("Falsos Negativos (Críticos)", f"{no_escalado_ataque} eventos")
-        else:
-            # Generamos el gráfico interactivo usando la misma lógica del evaluador
-            fig, ax = plt.subplots(figsize=(7.5, 4.8))
-            categorias_plot = ["Escalado al analista", "No escalado\n(filtrado por Q-SOC)"]
-
-            # Dibujamos las barras apiladas
-            ax.bar(categorias_plot, [escalado_ataque, no_escalado_ataque], color="#d62728", label="Ataque real", edgecolor="white", width=0.55)
-            ax.bar(categorias_plot, [escalado_benigno, no_escalado_benigno], bottom=[escalado_ataque, no_escalado_ataque], color="#1f77b4", label="Evento benigno", edgecolor="white", width=0.55)
-
-            # Función helper local para las etiquetas de porcentaje internas
-            def colocar_etiqueta(x_coord, y_base, valor_sec):
-                if valor_sec > 0 and total_eval > 0:
-                    ax.text(x_coord, y_base + valor_sec / 2, f"{valor_sec}\n({100*valor_sec/total_eval:.1f}%)",
-                            ha="center", va="center", color="white", fontweight="bold", fontsize=9)
-
-            colocar_etiqueta(0, 0, escalado_ataque)
-            colocar_etiqueta(0, escalado_ataque, escalado_benigno)
-            colocar_etiqueta(1, 0, no_escalado_ataque)
-            colocar_etiqueta(1, no_escalado_ataque, no_escalado_benigno)
-
-            # Totales en la parte superior de cada barra
-            for idx_bar, suma_col in enumerate([escalados_totales, no_escalados_totales]):
-                ax.text(idx_bar, suma_col + total_eval * 0.02, f"n = {suma_col}", ha="center", fontweight="bold")
-
-            ax.set_ylabel("Número de eventos (conjunto de prueba)")
-            ax.set_title(f"Decisión de escalamiento del agente Q-SOC (n = {total_eval})\n"
-                         f"Reducción de carga al SOC: {reduccion_carga_pct:.1f}% de eventos filtrados", fontsize=11, fontweight="bold")
-            ax.legend(loc="upper left")
-            ax.spines[["top", "right"]].set_visible(False)
-
-            # Anotación llamativa para el Falso Negativo (Cifra Crítica)
-            if no_escalado_ataque > 0:
-                ax.annotate(f"Falsos negativos: {no_escalado_ataque} ({100*no_escalado_ataque/total_eval:.1f}%)",
-                            xy=(1, no_escalado_ataque), xytext=(1.05, total_eval * 0.35),
-                            arrowprops=dict(arrowstyle="->", color="#d62728", lw=1.5),
-                            color="#d62728", fontweight="bold")
-
-            plt.tight_layout()
-            st.pyplot(fig)
-            
-        return
-
-<<<<<<< HEAD
-    # 4. Lógica original para cuando se selecciona un incidente específico
->>>>>>> ca8aa19 (feat: agregar vista general interactiva y actualizar dependencias)
-=======
->>>>>>> 50f5a2f (feat: actualizar dashboard, métricas y ajustar hiperparámetros del modelo)
     reporte = next(
         reporte for reporte in reportes if str(reporte.get("id_alerta")) == id_seleccionado
     )
@@ -901,7 +771,6 @@ def _mostrar_detalle_incidente(
         _mostrar_prediccion_ml(reporte.get("prediccion_ml"))
 
     _mostrar_tabs_respuesta(reporte)
-
 
 def _mostrar_resumen_incidente(reporte: dict[str, Any]) -> None:
     with st.container(border=True):
@@ -930,7 +799,6 @@ def _mostrar_resumen_incidente(reporte: dict[str, Any]) -> None:
             unsafe_allow_html=True,
         )
 
-
 def _mostrar_tabs_respuesta(reporte: dict[str, Any]) -> None:
     tabs = st.tabs(
         [
@@ -957,7 +825,6 @@ def _mostrar_tabs_respuesta(reporte: dict[str, Any]) -> None:
     with tabs[4]:
         with st.expander("Ver JSON completo del incidente", expanded=False):
             st.json(reporte, expanded=False)
-
 
 def _mostrar_prediccion_ml(prediccion: Any) -> None:
     with st.container(border=True):
@@ -1008,7 +875,6 @@ def _mostrar_prediccion_ml(prediccion: Any) -> None:
                 figsize=(4.8, 2.8),
             )
 
-
 def _mostrar_lista_en_tarjeta(valores: Any, ordenada: bool = False) -> None:
     if not valores:
         st.info("No disponible en el reporte.")
@@ -1027,7 +893,6 @@ def _mostrar_lista_en_tarjeta(valores: Any, ordenada: bool = False) -> None:
         """,
         unsafe_allow_html=True,
     )
-
 
 def _mostrar_playbook_tarjetas(valores: Any) -> None:
     if not valores:
@@ -1049,7 +914,6 @@ def _mostrar_playbook_tarjetas(valores: Any) -> None:
             """,
             unsafe_allow_html=True,
         )
-
 
 def _mostrar_contexto_historico_compacto(contexto: Any) -> None:
     if not isinstance(contexto, dict) or not contexto:
@@ -1087,7 +951,6 @@ def _mostrar_contexto_historico_compacto(contexto: Any) -> None:
         unsafe_allow_html=True,
     )
 
-
 def _color_clase_ml(clase: str) -> str:
     clase_normalizada = clase.strip().lower()
     if clase_normalizada == "normal":
@@ -1095,7 +958,6 @@ def _color_clase_ml(clase: str) -> str:
     if clase_normalizada in {"fallido", "sospechoso"}:
         return "red"
     return "blue"
-
 
 def _mostrar_qwen_bajo_demanda(reporte: dict[str, Any]) -> None:
     id_incidente = str(reporte.get("id_alerta", "sin_id"))
@@ -1162,7 +1024,6 @@ def _mostrar_qwen_bajo_demanda(reporte: dict[str, Any]) -> None:
                 "disponible mediante ML, MITRE y playbook."
             )
 
-
 def _ejecutar_qwen_bajo_demanda(reporte: dict[str, Any]) -> dict[str, Any]:
     try:
         from src.qwen_agent import analizar_con_qwen3
@@ -1180,14 +1041,12 @@ def _ejecutar_qwen_bajo_demanda(reporte: dict[str, Any]) -> dict[str, Any]:
             "detalle": str(error),
         }
 
-
 def _es_analisis_qwen_valido(analisis: Any) -> bool:
     return (
         isinstance(analisis, dict)
         and not analisis.get("error")
         and any(clave in analisis for clave in CLAVES_QWEN_RECONOCIDAS)
     )
-
 
 def _mostrar_analisis_qwen3(analisis: dict[str, Any]) -> None:
     st.markdown(
@@ -1224,7 +1083,6 @@ def _mostrar_analisis_qwen3(analisis: dict[str, Any]) -> None:
         f"{analisis.get('siguiente_accion_sugerida', 'No disponible en el reporte')}"
     )
 
-
 def _mostrar_lista_con_titulo(titulo: str, valores: Any) -> None:
     if valores is None:
         return
@@ -1232,13 +1090,11 @@ def _mostrar_lista_con_titulo(titulo: str, valores: Any) -> None:
     st.markdown(f"**{titulo}**")
     _mostrar_lista(valores)
 
-
 def _obtener_clase_ml(prediccion: Any) -> str | None:
     if not isinstance(prediccion, dict) or prediccion.get("estado") == "error":
         return None
     clase = prediccion.get("clase_predicha")
     return str(clase).strip().lower() if clase else None
-
 
 def _mostrar_lista(valores: Any) -> None:
     if not valores:
@@ -1252,7 +1108,6 @@ def _mostrar_lista(valores: Any) -> None:
     for valor in valores:
         st.markdown(f"- {valor}")
 
-
 def _normalizar_texto_ascii(valor: Any) -> str:
     texto = str(valor).strip()
     texto_ascii = (
@@ -1263,16 +1118,15 @@ def _normalizar_texto_ascii(valor: Any) -> str:
         return "critica"
     return normalizado
 
-
 def _formatear_booleano(valor: Any) -> str:
     return "S\u00ed" if bool(valor) else "No"
-
 
 def _obtener_serie(df: pd.DataFrame, columna: str, valor_defecto: Any) -> pd.Series:
     if columna in df.columns:
         return df[columna]
     return pd.Series([valor_defecto] * len(df), index=df.index)
 
-
 if __name__ == "__main__":
     main()
+
+
