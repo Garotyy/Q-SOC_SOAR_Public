@@ -674,7 +674,7 @@ def _ordenar_incidentes(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _mostrar_detalle_incidente(
-    reportes: list[dict[str, Any]], df_filtrado: pd.DataFrame
+    reportes: list[dict[str, Any]], df_filtrado: pd.DataFrame, metricas_ml: dict[str, Any]
 ) -> None:
     st.subheader("Panel de visualización de incidentes")
 
