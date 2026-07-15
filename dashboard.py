@@ -685,7 +685,7 @@ def _mostrar_detalle_incidente(
 
     # 3. Lógica para la Vista General (Nuevo gráfico de Escalamiento/Reducción de Carga)
     if id_seleccionado == "Vista General":
-        st.markdown("### 📊 Decisión de Escalamiento y Reducción de Carga")
+        st.markdown("### Decisión de Escalamiento y Reducción de Carga")
         st.info("Este gráfico de valor de negocio representa el comportamiento real del agente Q-SOC frente al conjunto de prueba del modelo predictivo.")
 
         # Extraemos la matriz de confusión real desde el JSON cargado en metricas_ml
