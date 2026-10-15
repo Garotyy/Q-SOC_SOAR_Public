@@ -53,7 +53,7 @@ CLAVES_QWEN_RECONOCIDAS = {
 }
 
 COLORES_METRICAS = {
-    "Accuracy": "#3b82f6",
+    "Exactitud": "#3b82f6",
     "Error Rate": "#f97316",
     "Precision": "#8b5cf6",
     "Recall": "#22c55e",
@@ -170,6 +170,8 @@ def _inyectar_estilos() -> None:
         .qsoc-detail-value {
             color: #f8fafc;
             font-weight: 600;
+            overflow-wrap: anywhere;
+            min-width: 0;
         }
         .qsoc-list-card {
             max-width: 980px;
@@ -198,7 +200,7 @@ def _inyectar_estilos() -> None:
             margin: 0.7rem auto 0;
             border: 1px solid rgba(148, 163, 184, 0.20);
             border-radius: 12px;
-            overflow: hidden;
+            overflow-x: auto;
             background: rgba(15, 23, 42, 0.30);
         }
         .qsoc-confusion-table table {
@@ -224,6 +226,9 @@ def _inyectar_estilos() -> None:
         }
         .qsoc-confusion-table tr:last-child td {
             border-bottom: 0;
+        }
+        .qsoc-card-title, .qsoc-card-value, .qsoc-hero h1 {
+            overflow-wrap: anywhere;
         }
         </style>
         """,
@@ -262,6 +267,23 @@ def _tarjeta_metrica(titulo: str, valor: Any, nota: str = "") -> None:
 def _html(valor: Any) -> str:
     return html.escape(str(valor))
 
+
+def _numero_es(valor: Any) -> str:
+    """Formatea cantidades para presentacion sin alterar los datos originales."""
+    return f"{int(valor):,}".replace(",", ".")
+
+
+def _estilizar_ejes(fig: Any, ax: Any) -> None:
+    fig.patch.set_facecolor("#0e1117")
+    ax.set_facecolor("#0e1117")
+    ax.tick_params(colors="#e2e8f0", labelsize=10)
+    ax.title.set_color("#f8fafc")
+    ax.title.set_fontsize(12)
+    ax.xaxis.label.set_color("#e2e8f0")
+    ax.yaxis.label.set_color("#e2e8f0")
+    for spine in ax.spines.values():
+        spine.set_color("#64748b")
+
 def main() -> None:
     st.set_page_config(
         page_title="Q-SOC | SOAR-IA",
@@ -281,26 +303,29 @@ def main() -> None:
 
     _mostrar_estado_archivos(datos)
 
-    if not df_reportes.empty:
-        _mostrar_kpis_principales(df_reportes)
-    else:
-        st.warning(
-            "No hay reportes generados disponibles. El dashboard no ejecuta el "
-            "pipeline automaticamente para evitar llamadas a Qwen o sobrescrituras."
-        )
-
-    _mostrar_evaluacion_modelo(metricas_ml)
-    _mostrar_graficos_ml(metricas_ml, df_eventos_ml)
-
-    if df_reportes.empty:
-        return
-
-    df_filtrado = _mostrar_incidentes_soc(df_reportes)
-    if df_filtrado.empty:
-        st.info("No hay incidentes que coincidan con los filtros seleccionados.")
-        return
-
-    _mostrar_detalle_incidente(reportes, df_filtrado, metricas_ml)
+    resumen, modelo, incidentes, eficiencia = st.tabs(
+        ["Resumen", "Modelo predictivo", "Incidentes", "Eficiencia"]
+    )
+    with resumen:
+        if not df_reportes.empty:
+            _mostrar_kpis_principales(df_reportes)
+        else:
+            st.warning("No hay reportes demostrativos disponibles.")
+        st.caption("Los reportes demostrativos y los flujos del conjunto de prueba son conjuntos distintos.")
+    with modelo:
+        _mostrar_evaluacion_modelo(metricas_ml)
+        _mostrar_graficos_ml(metricas_ml, df_eventos_ml)
+    with incidentes:
+        if not df_reportes.empty:
+            df_filtrado = _mostrar_incidentes_soc(df_reportes)
+            if not df_filtrado.empty:
+                _mostrar_detalle_incidente(reportes, df_filtrado, metricas_ml)
+            else:
+                st.info("No hay incidentes que coincidan con los filtros seleccionados.")
+        else:
+            st.info("No hay reportes demostrativos disponibles.")
+    with eficiencia:
+        mostrar_grafico_tesis()
 
 @st.cache_data(show_spinner=False)
 def cargar_datos_dashboard() -> dict[str, Any]:
@@ -363,7 +388,7 @@ def _mostrar_kpis_principales(df: pd.DataFrame) -> None:
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        _tarjeta_metrica("Incidentes totales", incidentes_totales)
+        _tarjeta_metrica("Incidentes demostrativos", _numero_es(incidentes_totales))
     with col2:
         _tarjeta_metrica("Incidentes cr\u00edticos", incidentes_criticos)
     with col3:
@@ -372,7 +397,7 @@ def _mostrar_kpis_principales(df: pd.DataFrame) -> None:
         _tarjeta_metrica(
             "Cobertura MITRE ATT&CK",
             f"{cobertura_mitre}/{incidentes_totales}",
-            f"{porcentaje_mitre:.1f}%",
+            f"{format(porcentaje_mitre, '.1f').replace('.', ',')}%",
         )
 
 def _mostrar_evaluacion_modelo(metricas_ml: dict[str, Any]) -> None:
@@ -390,15 +415,15 @@ def _mostrar_evaluacion_modelo(metricas_ml: dict[str, Any]) -> None:
 
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
-        _tarjeta_metrica("Accuracy", f"{accuracy * 100:.1f}%")
+        _tarjeta_metrica("Exactitud", f"{format(accuracy * 100, '.1f').replace('.', ',')}%")
     with col2:
-        _tarjeta_metrica("Error Rate", f"{error_rate * 100:.1f}%")
+        _tarjeta_metrica("Error Rate", f"{format(error_rate * 100, '.1f').replace('.', ',')}%")
     with col3:
-        _tarjeta_metrica("Precision", f"{precision * 100:.1f}%")
+        _tarjeta_metrica("Precisión macro", f"{format(precision * 100, '.1f').replace('.', ',')}%")
     with col4:
-        _tarjeta_metrica("Recall", f"{recall * 100:.1f}%")
+        _tarjeta_metrica("Recall macro", f"{format(recall * 100, '.1f').replace('.', ',')}%")
     with col5:
-        _tarjeta_metrica("F1-Score", f"{f1 * 100:.1f}%")
+        _tarjeta_metrica("F1-score macro", f"{format(f1 * 100, '.1f').replace('.', ',')}%")
 
 def _mostrar_graficos_ml(metricas_ml: dict[str, Any], df_eventos_ml: pd.DataFrame) -> None:
     st.subheader("Gr\u00e1ficos ML")
@@ -425,24 +450,24 @@ def _mostrar_grafico_metricas(metricas_ml: dict[str, Any]) -> None:
     df_metricas = pd.DataFrame(
         [
             {
-                "m\u00e9trica": "Accuracy",
+                "m\u00e9trica": "Exactitud",
                 "valor": float(metricas.get("accuracy", 0.0)) * 100,
             },
             {
-                "m\u00e9trica": "Precision",
+                "m\u00e9trica": "Precisión macro",
                 "valor": float(metricas.get("precision_macro", 0.0)) * 100,
             },
             {
-                "m\u00e9trica": "Recall",
+                "m\u00e9trica": "Recall macro",
                 "valor": float(metricas.get("recall_macro", 0.0)) * 100,
             },
             {
-                "m\u00e9trica": "F1-Score",
+                "m\u00e9trica": "F1-score macro",
                 "valor": float(metricas.get("f1_macro", 0.0)) * 100,
             },
         ]
     )
-    st.markdown("**Accuracy, Precision, Recall y F1-Score**")
+    st.markdown("**Exactitud, Precisión macro, Recall macro y F1-score macro**")
     _mostrar_barras_coloreadas(
         df=df_metricas,
         categoria="m\u00e9trica",
@@ -493,9 +518,11 @@ def _mostrar_barras_coloreadas(
 
     categorias = df[categoria].astype(str).tolist()
     valores = df[valor].astype(float).tolist()
-    colores_barras = [colores.get(item, "#60a5fa") for item in categorias]
+    nombres_color = {"Precisión macro": "Precision", "Recall macro": "Recall", "F1-score macro": "F1-Score"}
+    colores_barras = [colores.get(nombres_color.get(item, item), "#60a5fa") for item in categorias]
 
     fig, ax = plt.subplots(figsize=figsize)
+    _estilizar_ejes(fig, ax)
     barras = ax.bar(categorias, valores, color=colores_barras, edgecolor="#dbeafe", linewidth=0.5)
     ax.set_title(titulo)
     ax.set_ylabel(etiqueta_y)
@@ -505,10 +532,14 @@ def _mostrar_barras_coloreadas(
 
     if limite_y is not None:
         ax.set_ylim(*limite_y)
+    elif valores:
+        ax.set_ylim(0, max(valores) * 1.16)
+    if not sufijo:
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda valor, posicion: _numero_es(valor)))
 
     desplazamiento = max(valores) * 0.025 if valores else 0.5
     for barra, valor_barra in zip(barras, valores):
-        etiqueta = f"{valor_barra:.1f}{sufijo}" if sufijo else f"{valor_barra:.0f}"
+        etiqueta = f"{format(valor_barra, '.1f').replace('.', ',')}{sufijo}" if sufijo else _numero_es(valor_barra)
         ax.text(
             barra.get_x() + barra.get_width() / 2,
             barra.get_height() + desplazamiento,
@@ -516,7 +547,7 @@ def _mostrar_barras_coloreadas(
             ha="center",
             va="bottom",
             fontsize=9,
-            color="#111827",
+            color="#e2e8f0",
         )
 
     fig.tight_layout()
@@ -541,6 +572,7 @@ def _mostrar_matriz_confusion(
         st.info("Matplotlib no est\u00e1 disponible; se muestra solo la tabla num\u00e9rica.")
     else:
         fig, ax = plt.subplots(figsize=(4.5, 3.5))
+        _estilizar_ejes(fig, ax)
         imagen = ax.imshow(valores, cmap="Blues")
         ax.set_title("Matriz de confusi\u00f3n de Random Forest", fontsize=10)
         ax.set_xlabel("Clase predicha", fontsize=9)
@@ -558,14 +590,16 @@ def _mostrar_matriz_confusion(
                 ax.text(
                     columna,
                     fila,
-                    str(valor),
+                    _numero_es(valor),
                     ha="center",
                     va="center",
                     color=color,
                     fontsize=9,
                 )
 
-        fig.colorbar(imagen, ax=ax, fraction=0.046, pad=0.04)
+        barra_color = fig.colorbar(imagen, ax=ax, fraction=0.046, pad=0.04)
+        barra_color.ax.tick_params(colors="#e2e8f0", labelsize=9)
+        barra_color.ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda valor, posicion: _numero_es(valor)))
         fig.tight_layout()
         st.pyplot(fig)
 
@@ -592,7 +626,7 @@ def _mostrar_tabla_matriz_confusion(labels: list[Any], valores: list[list[Any]])
     encabezados = "".join(f"<th>Pred: {_html(label)}</th>" for label in labels)
     filas = []
     for label, fila in zip(labels, valores):
-        celdas = "".join(f"<td>{_html(valor)}</td>" for valor in fila)
+        celdas = "".join(f"<td>{_numero_es(valor)}</td>" for valor in fila)
         filas.append(f"<tr><td>Real: {_html(label)}</td>{celdas}</tr>")
 
     st.markdown(
@@ -600,7 +634,7 @@ def _mostrar_tabla_matriz_confusion(labels: list[Any], valores: list[list[Any]])
         <div class="qsoc-confusion-table">
           <table>
             <thead>
-              <tr><th>Matriz de confusi\u00f3n (datos de prueba: {total_prueba} eventos)</th>{encabezados}</tr>
+              <tr><th>Matriz de confusi\u00f3n (datos de prueba: {_numero_es(total_prueba)} flujos)</th>{encabezados}</tr>
             </thead>
             <tbody>
               {''.join(filas)}
@@ -618,10 +652,10 @@ def _mostrar_incidentes_soc(df: pd.DataFrame) -> pd.DataFrame:
     col1, col2, col3 = st.columns(3)
     with col1:
         severidades = sorted(df_ordenado.get("severidad", pd.Series(dtype=str)).dropna().unique())
-        filtro_severidad = st.multiselect("Filtrar por severidad", severidades)
+        filtro_severidad = st.multiselect("Filtrar por severidad", severidades, placeholder="Selecciona opciones")
     with col2:
         tipos = sorted(df_ordenado.get("tipo_incidente", pd.Series(dtype=str)).dropna().unique())
-        filtro_tipo = st.multiselect("Filtrar por tipo", tipos)
+        filtro_tipo = st.multiselect("Filtrar por tipo", tipos, placeholder="Selecciona opciones")
     with col3:
         solo_escalados = st.checkbox("Solo escalados")
 
@@ -636,7 +670,10 @@ def _mostrar_incidentes_soc(df: pd.DataFrame) -> pd.DataFrame:
     columnas_disponibles = [
         columna for columna in COLUMNAS_TABLA_SOC if columna in df_filtrado.columns
     ]
-    st.dataframe(df_filtrado[columnas_disponibles], width="stretch", hide_index=True)
+    st.dataframe(
+        df_filtrado[columnas_disponibles], width="stretch", hide_index=True,
+        column_config={columna: st.column_config.Column(columna.replace("_", " ").capitalize(), width="medium") for columna in columnas_disponibles},
+    )
     return df_filtrado
 
 def _ordenar_incidentes(df: pd.DataFrame) -> pd.DataFrame:
@@ -663,8 +700,8 @@ def _mostrar_detalle_incidente(
 
     # 3. Lógica para la Vista General (Nuevo gráfico de Escalamiento/Reducción de Carga)
     if id_seleccionado == "Vista General":
-        st.markdown("### Decisión de Escalamiento y Reducción de Carga")
-        st.info("Este gráfico de valor de negocio representa el comportamiento real del agente Q-SOC frente al conjunto de prueba del modelo predictivo.")
+        st.markdown("### Decisión de filtrado del clasificador Q-SOC")
+        st.info("Distribución de los flujos del conjunto de prueba según la predicción del clasificador Q-SOC. El filtrado puede contribuir a reducir la carga de revisión.")
 
         # Extraemos la matriz de confusión real desde el JSON cargado en metricas_ml
         matriz = metricas_ml.get("matriz_confusion", {}) if isinstance(metricas_ml, dict) else {}
@@ -682,7 +719,7 @@ def _mostrar_detalle_incidente(
             and "normal" in labels
         )
         if not matriz_valida:
-            st.warning("No hay una matriz de confusión válida para calcular el escalamiento.")
+            st.warning("No hay una matriz de confusión válida para mostrar el filtrado.")
             return
 
         idx_normal = labels.index("normal")
@@ -716,12 +753,13 @@ def _mostrar_detalle_incidente(
             # Si en la nube fallara Matplotlib por alguna extraña razón, mostramos datos tabulares limpios
             st.warning("Matplotlib no disponible para renderizar el gráfico. Se muestran métricas de negocio resumidas:")
             col_a, col_b = st.columns(2)
-            col_a.metric("Reducción de Carga al SOC", f"{reduccion_carga_pct:.1f}%")
-            col_b.metric("Falsos Negativos (Críticos)", f"{no_escalado_ataque} eventos")
+            col_a.metric("Filtrado como normal", f"{format(reduccion_carga_pct, '.1f').replace('.', ',')}%")
+            col_b.metric("Falsos negativos", f"{_numero_es(no_escalado_ataque)} flujos")
         else:
             # Generamos el gráfico interactivo usando la misma lógica del evaluador
             fig, ax = plt.subplots(figsize=(7.5, 4.8))
-            categorias_plot = ["Escalado al analista", "No escalado\n(filtrado por Q-SOC)"]
+            categorias_plot = ["Marcado como alerta", "Filtrado como normal"]
+            _estilizar_ejes(fig, ax)
 
             # Dibujamos las barras apiladas
             ax.bar(categorias_plot, [escalado_ataque, no_escalado_ataque], color="#d62728", label="Ataque real", edgecolor="white", width=0.55)
@@ -730,7 +768,9 @@ def _mostrar_detalle_incidente(
             # Función helper local para las etiquetas de porcentaje internas
             def colocar_etiqueta(x_coord, y_base, valor_sec):
                 if valor_sec > 0 and total_eval > 0:
-                    ax.text(x_coord, y_base + valor_sec / 2, f"{valor_sec}\n({100*valor_sec/total_eval:.1f}%)",
+                    if valor_sec / total_eval < 0.06:
+                        return
+                    ax.text(x_coord, y_base + valor_sec / 2, f"{_numero_es(valor_sec)}\n({format(100*valor_sec/total_eval, '.1f').replace('.', ',')}%)",
                             ha="center", va="center", color="white", fontweight="bold", fontsize=9)
 
             colocar_etiqueta(0, 0, escalado_ataque)
@@ -740,20 +780,22 @@ def _mostrar_detalle_incidente(
 
             # Totales en la parte superior de cada barra
             for idx_bar, suma_col in enumerate([escalados_totales, no_escalados_totales]):
-                ax.text(idx_bar, suma_col + total_eval * 0.02, f"n = {suma_col}", ha="center", fontweight="bold")
+                ax.text(idx_bar, suma_col + total_eval * 0.02, f"n = {_numero_es(suma_col)}", ha="center", fontweight="bold", color="#e2e8f0")
 
-            ax.set_ylabel("Número de eventos (conjunto de prueba)")
-            ax.set_title(f"Decisión de escalamiento del agente Q-SOC (n = {total_eval})\n"
-                         f"Reducción de carga al SOC: {reduccion_carga_pct:.1f}% de eventos filtrados", fontsize=11, fontweight="bold")
-            ax.legend(loc="upper left")
+            ax.set_ylabel("Número de flujos (conjunto de prueba)")
+            ax.set_title(f"Decisión de filtrado del clasificador Q-SOC (n = {_numero_es(total_eval)})\n"
+                         f"Filtrado como normal: {format(reduccion_carga_pct, '.1f').replace('.', ',')}% de los flujos", fontsize=12, fontweight="bold", pad=16)
+            ax.set_ylim(0, max(escalados_totales, no_escalados_totales) * 1.16)
+            ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda valor, posicion: _numero_es(valor)))
+            ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=2, facecolor="#1e293b", labelcolor="white")
             ax.spines[["top", "right"]].set_visible(False)
 
             # Anotación llamativa para el Falso Negativo (Cifra Crítica)
             if no_escalado_ataque > 0:
-                ax.annotate(f"Falsos negativos: {no_escalado_ataque} ({100*no_escalado_ataque/total_eval:.1f}%)",
-                            xy=(1, no_escalado_ataque), xytext=(1.05, total_eval * 0.35),
-                            arrowprops=dict(arrowstyle="->", color="#d62728", lw=1.5),
-                            color="#d62728", fontweight="bold")
+                st.caption(
+                    f"Falsos negativos: {_numero_es(no_escalado_ataque)} flujos "
+                    f"({format(100*no_escalado_ataque/total_eval, '.1f').replace('.', ',')}% del conjunto de prueba)."
+                )
 
             plt.tight_layout()
             st.pyplot(fig)
@@ -848,7 +890,7 @@ def _mostrar_prediccion_ml(prediccion: Any) -> None:
               <div class="qsoc-card-title">Clase predicha</div>
               <div class="qsoc-card-value">{_html(clase)}</div>
               <div class="qsoc-card-note">
-                Confianza: {confianza * 100:.1f}% &nbsp;|&nbsp;
+                Confianza: {format(confianza * 100, '.1f').replace('.', ',')}% &nbsp;|&nbsp;
                 <span class="qsoc-badge {color}">Estado: {_html(estado)}</span>
               </div>
             </div>
@@ -1137,8 +1179,8 @@ def mostrar_grafico_tesis():
         return
 
     st.markdown("---")
-    st.markdown("## Demostracion de Eficiencia: Sin Q-SOC (Ronda 1) vs Con Q-SOC (Ronda 2)")
-    st.info("Esta seccion documenta el experimento comparativo de tiempos de analisis (MTTD) por evento realizado para la tesis.")
+    st.markdown("## Comparación del tiempo de revisión sin y con apoyo de Q-SOC")
+    st.info("Esta sección documenta el experimento comparativo de tiempo de revisión por evento realizado para la tesis.")
 
     # Datos del experimento
     eventos = ["Evento 1", "Evento 2", "Evento 3", "Promedio"]
@@ -1148,24 +1190,25 @@ def mostrar_grafico_tesis():
     # Metricas en tarjetas destacadas
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
     with col_m1:
-        st.metric("Promedio Sin Q-SOC", "55.08 s", help="Ronda 1: Analisis manual / tradicional")
+        st.metric("Promedio Sin Q-SOC", "55,08 s", help="Ronda 1: Analisis manual / tradicional")
     with col_m2:
-        st.metric("Promedio Con Q-SOC", "24.94 s", delta="-30.14 s (-54.72%)", delta_color="inverse", help="Ronda 2: Analisis asistido con Q-SOC")
+        st.metric("Promedio Con Q-SOC", "24,94 s", delta="-30,14 s (-54,72%)", delta_color="inverse", help="Ronda 2: Analisis asistido con Q-SOC")
     with col_m3:
-        st.metric("Ahorro de Tiempo", "54.72%", help="Reduccion porcentual de tiempo de respuesta")
+        st.metric("Ahorro de tiempo de revisión", "54,72%", help="Reducción porcentual del tiempo de revisión")
     with col_m4:
-        st.metric("Aceleracion (Speedup)", "2.21x", help="El analista fue mas de 2.2 veces mas rapido")
+        st.metric("Aceleracion (Speedup)", "2,21x", help="El analista fue mas de 2,2 veces mas rapido")
 
     # Tabla detallada comparativa solicitada
-    st.markdown("### Tabla Comparativa de Tiempos de Analisis")
+    st.markdown("### Tabla comparativa del tiempo de revisión")
     df_comparativa = pd.DataFrame({
         "Muestra / Evento": ["Evento 1", "Evento 2", "Evento 3", "Promedio General"],
-        "Sin Q-SOC (Ronda 1)": ["50.93 s", "67.10 s (1:07.10)", "47.21 s", "55.08 s"],
-        "Con Q-SOC (Ronda 2)": ["26.23 s", "22.23 s", "26.35 s", "24.94 s"],
-        "Diferencia (Ahorro)": ["-24.70 s (-48.50%)", "-44.87 s (-66.87%)", "-20.86 s (-44.19%)", "-30.14 s (-54.72%)"],
-        "Factor de Aceleracion": ["1.94x mas rapido", "3.02x mas rapido", "1.79x mas rapido", "2.21x mas rapido"]
+        "Sin Q-SOC (Ronda 1)": ["50,93 s", "67,10 s (1:07,10)", "47,21 s", "55,08 s"],
+        "Con Q-SOC (Ronda 2)": ["26,23 s", "22,23 s", "26,35 s", "24,94 s"],
+        "Diferencia (Ahorro)": ["-24,70 s (-48,50%)", "-44,87 s (-66,87%)", "-20,86 s (-44,19%)", "-30,14 s (-54,72%)"],
+        "Factor de Aceleracion": ["1,94x mas rapido", "3,02x mas rapido", "1,79x mas rapido", "2,21x mas rapido"]
     })
-    st.dataframe(df_comparativa, use_container_width=True, hide_index=True)
+    st.dataframe(df_comparativa, width="stretch", hide_index=True,
+                 column_config={columna: st.column_config.Column(columna, width="medium") for columna in df_comparativa.columns})
 
     # Grafico comparativo y conclusiones
     col1, col2 = st.columns([3, 2])
@@ -1178,12 +1221,13 @@ def mostrar_grafico_tesis():
         barras_sin = ax.bar(x - ancho/2, tiempos_sin, ancho, label="Sin Q-SOC (Ronda 1)", color="#ef4444", edgecolor="white", linewidth=0.5)
         barras_con = ax.bar(x + ancho/2, tiempos_con, ancho, label="Con Q-SOC (Ronda 2)", color="#10b981", edgecolor="white", linewidth=0.5)
 
-        ax.set_ylabel("Tiempo en Segundos (Menor es mejor)", color="white")
-        ax.set_title("Comparacion de Tiempos: Sin Q-SOC vs Con Q-SOC (MTTD)", color="white", fontsize=12, pad=10)
+        ax.set_ylabel("Tiempo de revisión (segundos)", color="white")
+        ax.set_title("Comparación del tiempo de revisión: sin Q-SOC y con Q-SOC", color="white", fontsize=12, pad=18, wrap=True)
+        ax.set_ylim(0, max(tiempos_sin + tiempos_con) * 1.22)
         ax.set_xticks(x)
         ax.set_xticklabels(eventos, color="white", fontweight="bold")
         ax.tick_params(colors="white")
-        ax.legend(facecolor="#1e293b", edgecolor="white", labelcolor="white")
+        ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=2, facecolor="#1e293b", edgecolor="white", labelcolor="white")
         ax.grid(axis="y", alpha=0.2, linestyle="--")
 
         fig.patch.set_facecolor("#0e1117")
@@ -1192,11 +1236,11 @@ def mostrar_grafico_tesis():
         # Etiquetas numericas sobre las barras
         for barra in barras_sin:
             yval = barra.get_height()
-            ax.text(barra.get_x() + barra.get_width()/2, yval + 1.2, f"{yval:.1f}s", ha="center", va="bottom", color="#fca5a5", fontweight="bold", fontsize=8.5)
+            ax.text(barra.get_x() + barra.get_width()/2, yval + 1.2, f"{format(yval, '.1f').replace('.', ',')}s", ha="center", va="bottom", color="#fca5a5", fontweight="bold", fontsize=8.5)
 
         for barra in barras_con:
             yval = barra.get_height()
-            ax.text(barra.get_x() + barra.get_width()/2, yval + 1.2, f"{yval:.1f}s", ha="center", va="bottom", color="#6ee7b7", fontweight="bold", fontsize=8.5)
+            ax.text(barra.get_x() + barra.get_width()/2, yval + 1.2, f"{format(yval, '.1f').replace('.', ',')}s", ha="center", va="bottom", color="#6ee7b7", fontweight="bold", fontsize=8.5)
 
         fig.tight_layout()
         st.pyplot(fig)
@@ -1205,20 +1249,19 @@ def mostrar_grafico_tesis():
         st.markdown("### Conclusiones del Experimento")
         st.markdown(
             """
-            - **Reduccion del MTTD:** El uso de Q-SOC redujo el tiempo de resolucion en promedio **de 55.08s a 24.94s**, ahorrando **30.14 segundos por incidente (54.72%)**.
-            - **Aceleracion de Triage (2.21x):** En el Evento 2 se alcanzo un pico de **3.02x de aceleracion** (de 67.10s a 22.23s), demostrando gran impacto en incidentes complejos.
-            - **Consistencia y Estabilidad:**
-              - *Sin Q-SOC:* Gran variabilidad entre eventos (rango de 47.21s a 67.10s).
-              - *Con Q-SOC:* Tiempos homogeneos y predecibles (22.23s a 26.35s).
-            - **Mitigacion del Factor Humano:**
-              - Evita la fatiga de alertas y el cierre prematuro de tickets.
-              - Estandariza la calidad del enriquecimiento contextual y la seleccion de playbooks.
+            - **Tiempo de revisión:** En el experimento, el promedio pasó **de 55,08s a 24,94s**, con una diferencia de **30,14 segundos por evento (54,72%)**.
+            - **Factor de aceleración (2,21x):** En el Evento 2 se alcanzo un pico de **3,02x de aceleracion** (de 67,10s a 22,23s), registrándose la mayor diferencia entre las muestras evaluadas.
+            - **Variación observada:**
+              - *Sin Q-SOC:* Gran variabilidad entre eventos (rango de 47,21s a 67,10s).
+              - *Con Q-SOC:* Menor variación entre las tres muestras evaluadas (22,23s a 26,35s).
+            - **Posible aporte operativo:**
+              - Puede contribuir a reducir la carga de revisión.
+              - Puede favorecer una presentación más uniforme del contexto y de los playbooks recomendados.
             """
         )
-        st.markdown("**Conclusion Final:** Q-SOC mas que duplica la velocidad de respuesta del analista (2.21x), minimizando la ventana de exposicion ante incidentes criticos.")
+        st.markdown("**Conclusión del experimento:** La revisión asistida mostró una aceleración de 2,21x en las muestras evaluadas. Este apoyo puede contribuir a reducir la carga de revisión y puede apoyar una respuesta más oportuna.")
 
 if __name__ == "__main__":
     main()
-    mostrar_grafico_tesis()
 
 
