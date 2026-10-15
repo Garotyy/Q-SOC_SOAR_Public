@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+data/dataset_kali_homologado.csv
+data/Tuesday-WorkingHours.pcap_ISCX.csv
+**/.ipynb_checkpoints/
+data/Monday-WorkingHours.pcap_ISCX.csv
+data/Wednesday-workingHours.pcap_ISCX.csv
