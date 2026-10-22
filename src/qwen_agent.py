@@ -154,6 +154,10 @@ Ejemplo de estructura obligatoria:
         "model": MODELO,
         "prompt": prompt,
         "stream": False,
+        "options": {
+            "temperature": 0.0,
+            "seed": 42
+        }
     }
 
     respuesta = requests.post(OLLAMA_URL, json=payload, timeout=TIMEOUT_SEGUNDOS)
@@ -241,6 +245,10 @@ Ejemplo de estructura obligatoria:
             "model": MODELO,
             "prompt": prompt,
             "stream": False,
+            "options": {
+                "temperature": 0.0,
+                "seed": 42
+            }
         }
 
         respuesta = requests.post(OLLAMA_URL, json=payload, timeout=TIMEOUT_SEGUNDOS)

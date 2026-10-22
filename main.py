@@ -2,7 +2,14 @@
 
 from __future__ import annotations
 
+import sys
 from typing import Any
+
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 from src.clasificador import clasificar_incidente
 from src.detector import detectar_incidentes
@@ -36,7 +43,7 @@ def _intentar_prediccion_ml(incidente: dict, severidad: str) -> dict[str, Any]:
         return {
             "estado": "error",
             "detalle": "No se pudo importar la capa ML de prediccion.",
-            "modelo": "DecisionTreeClassifier",
+            "modelo": "RandomForestClassifier",
         }
 
     try:
@@ -45,7 +52,7 @@ def _intentar_prediccion_ml(incidente: dict, severidad: str) -> dict[str, Any]:
         return {
             "estado": "error",
             "detalle": str(error),
-            "modelo": "DecisionTreeClassifier",
+            "modelo": "RandomForestClassifier",
         }
 
 

@@ -1,0 +1,130 @@
+[
+  {
+    "id_alerta": "INC-SSH-001",
+    "tipo_incidente": "SSH Brute Force",
+    "severidad": "Crítica",
+    "táctica_mitre": "Credential Access",
+    "id_técnica": "T1110.001",
+    "evidencia": [
+      "6 intentos fallidos SSH desde 203.0.113.45 hacia srv-web-01 (10.10.20.15).",
+      "... [evidencia adicional omitida por brevedad] ..."
+    ],
+    "recomendación_playbook": [
+      "Simular bloqueo temporal de la IP origen en controles perimetrales.",
+      "Revisar logs de autenticación SSH en el host afectado.",
+      "... [7 pasos adicionales omitidos] ..."
+    ],
+    "prediccion_ml": {
+      "modelo": "RandomForestClassifier (CICIDS2017 Kali)",
+      "clase_predicha": "fallido",
+      "confianza": 0.84,
+      "probabilidades": {
+        "fallido": 0.84,
+        "normal": 0.1518,
+        "sospechoso": 0.0082
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "Incidente de fuerza bruta SSH con múltiples usuarios atacados por la misma IP origen.",
+      "hechos_observados": [
+        "6 intentos fallidos SSH desde 203.0113.45 hacia srv-web-01 (10.10.20.15).",
+        "Usuarios observados: admin, backup, devops, root.",
+        "La IP origen probó credenciales contra múltiples usuarios."
+      ],
+      "inferencias_razonables": [
+        "No se identifican hipótesis de falso positivo basadas en la evidencia disponible.",
+        "... [inferencias omitidas] ..."
+      ],
+      "analisis_riesgo": "Severidad Crítica debido a múltiples usuarios atacados por la misma IP origen.",
+      "explicacion_mitre": "La táctica MFA (Multi-Factor Authentication) está siendo forzada, lo que puede indicar una fuerza bruta de contraseñas.",
+      "recomendacion_soc": [
+        "Simular bloqueo temporal de la IP origen en controles perimetrales.",
+        "Revisar logs de autenticación SSH en el host afectado.",
+        "... [recomendaciones adicionales omitidas] ..."
+      ],
+      "siguiente_accion_sugerida": "Continuar monitoreo sobre la IP origen, host destino y usuarios atacados para identificar accesos exitosos posteriores al patrón de fallos."
+    }
+  },
+  {
+    "id_alerta": "INC-EXFIL-001",
+    "tipo_incidente": "Data Exfiltration",
+    "severidad": "Baja",
+    "táctica_mitre": "Exfiltration",
+    "id_técnica": "T1041",
+    "evidencia": [
+      "2 evento(s) de exfiltración desde 10.10.20.15 (srv-web-01).",
+      "Usuario involucrado: deploy.",
+      "... [evidencia omitida por brevedad] ..."
+    ],
+    "recomendación_playbook": [
+      "Registrar el evento para análisis posterior.",
+      "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
+      "Mantener el evento en cola de triage de baja prioridad."
+    ],
+    "prediccion_ml": {
+      "modelo": "RandomForestClassifier (CICIDS2017 Kali)",
+      "clase_predicha": "fallido",
+      "confianza": 0.4638,
+      "probabilidades": {
+        "fallido": 0.4638,
+        "normal": 0.3355,
+        "sospechoso": 0.2006
+      }
+    },
+    "analisis_qwen3_real": {
+      "resumen_ejecutivo": "Incidente de exfiltración de datos con baja severidad y repetición de IP origen.",
+      "hechos_observados": [
+        "2 eventos de exfiltración desde la IP origen 10.10.20.15 (srv-web-01).",
+        "Usuario involucrado: deploy.",
+        "Protocolos observados: https.",
+        "Destinos externos: 185.220.101.12."
+      ],
+      "inferencias_razonables": [
+        "El usuario deploy ha sido recurrente en incidentes de exfiltración previos.",
+        "... [inferencias omitidas] ..."
+      ],
+      "explicacion_mitre": "La táctica Mitré Exfiltración (T1041) se aplica a este incidente, que utiliza un canal C2 para exfiltrar datos.",
+      "recomendacion_soc": [
+        "Registrar el evento para análisis posterior.",
+        "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
+        "Mantener el evento en cola de triage de baja prioridad."
+      ],
+      "siguiente_accion_sugerida": "Registrar el evento para análisis posterior y revisar si existe un detector aplicable o si se requiere crear uno nuevo."
+    }
+  },
+  {
+    "id_alerta": "INC-DNS-001",
+    "tipo_incidente": "DNS Query Observed",
+    "severidad": "Baja",
+    "táctica_mitre": "Discovery",
+    "id_técnica": "T1046",
+    "evidencia": [
+      "1 consulta(s) DNS desde 203.0.113.201 (ws-analyst-07).",
+      "Destinos de resolución: 10.10.50.23."
+    ],
+    "recomendación_playbook": [
+      "Registrar el evento para análisis posterior.",
+      "Revisar si existe un detector aplicable o si se requiere crear uno nuevo.",
+      "Mantener el evento en cola de triage de baja prioridad."
+    ],
+    "requiere_escalamiento": false,
+    "nivel_escalamiento": "No requerido",
+    "prioridad": "P4",
+    "justificación": "No cumple criterios de escalamiento automático del MVP.",
+    "prediccion_ml": {
+      "modelo": "RandomForestClassifier (CICIDS2017 Kali)",
+      "clase_predicha": "normal",
+      "confianza": 0.5311,
+      "probabilidades": {
+        "fallido": 0.0798,
+        "normal": 0.5311,
+        "sospechoso": 0.3891
+      }
+    },
+    "analisis_qwen3_real": {
+      "estado": "omitido",
+      "motivo": "Filtrado en Etapa 1 (Machine Learning clasificó como NORMAL o Severidad Baja)",
+      "accion_sugerida": "PERMITIR"
+    }
+  }
+]
