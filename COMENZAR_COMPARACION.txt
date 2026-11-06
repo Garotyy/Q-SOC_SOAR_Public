@@ -1,0 +1,26 @@
+Q-SOC - Comparación de clasificadores
+
+Este paquete añade cuatro archivos de trabajo y esta guía. No incluye ni
+reemplaza dashboard.py, main.py, random_forest.py o los reportes oficiales.
+
+1. Descargar qsoc_comparacion_modelos.zip en Descargas.
+2. Desde Anaconda Prompt, con SOAR-IA como directorio actual, ejecutar:
+
+powershell -NoProfile -Command "Expand-Archive -LiteralPath 'C:\Users\carva\Downloads\qsoc_comparacion_modelos.zip' -DestinationPath '.'"
+
+3. Con el entorno prototipo-soar-ai activo:
+
+python -m pip install -r requirements-comparacion.txt
+python -m src.comparar_modelos --incluir-rf-alternativo --auditar-incidentes
+
+4. Esperar a que aparezca "Resultados guardados en: ...".
+5. Enviar resultados_completos.json y comparacion_modelos.csv de esa carpeta.
+
+No ejecutar main.py ni regenerar el dataset para esta comparación.
+Los resultados nuevos se guardan en outputs/comparacion_modelos/FECHA_HORA/.
+
+La configuración alternativa de RF permite contrastar el código real con la
+configuración que declara el JSON antiguo. Son tres algoritmos y cuatro
+configuraciones; no se elige automáticamente un ganador.
+
+Los hallazgos y el protocolo están en docs/comparacion_modelos_tesis.md.

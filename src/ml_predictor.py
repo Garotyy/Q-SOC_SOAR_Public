@@ -19,6 +19,7 @@ from src.generador_dataset_ml import (
     USUARIOS_PRIVILEGIADOS,
 )
 from src.utils import parsear_timestamp
+from src.telemetria_red import tiene_telemetria_red
 
 try:
     import joblib
@@ -66,8 +67,14 @@ def predecir_incidente_ml(
     incidente: dict[str, Any],
     severidad_calculada: str | None = None,
     ruta_modelo: str | Path = RUTA_MODELO,
+    ruta_modelo_red: str | Path | None = None,
 ) -> dict[str, Any]:
     """Predice la clase ML de un incidente sin interrumpir el pipeline."""
+    if tiene_telemetria_red(incidente):
+        from src.ml_predictor_red import predecir_incidente_red
+        if ruta_modelo_red is not None:
+            return predecir_incidente_red(incidente, ruta_modelo_red)
+        return predecir_incidente_red(incidente)
     try:
         pipeline = _obtener_pipeline_entrenado(str(Path(ruta_modelo)))
         features = _construir_features_incidente(incidente, severidad_calculada)
@@ -78,6 +85,7 @@ def predecir_incidente_ml(
 
         return {
             "modelo": MODELO_ML,
+            "representacion": "contextual_homologada",
             "clase_predicha": clase_predicha,
             "confianza": probabilidades.get(clase_predicha, 0.0),
             "probabilidades": probabilidades,

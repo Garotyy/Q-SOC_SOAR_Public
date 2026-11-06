@@ -848,7 +848,7 @@ def _mostrar_tabs_respuesta(reporte: dict[str, Any]) -> None:
             "Evidencia",
             "Playbook recomendado",
             "Contexto hist\u00f3rico",
-            "An\u00e1lisis avanzado Q-SOC / Qwen",
+            "An\u00e1lisis avanzado con Q-SOC",
             "JSON / detalles t\u00e9cnicos",
         ]
     )
@@ -1010,24 +1010,24 @@ def _mostrar_qwen_bajo_demanda(reporte: dict[str, Any]) -> None:
     analisis_sesion = st.session_state["analisis_qsoc_qwen"].get(id_incidente)
 
     if _es_analisis_qwen_valido(analisis_sesion):
-        st.success("An\u00e1lisis Qwen disponible en la sesi\u00f3n actual.")
-        with st.expander("Ver an\u00e1lisis Qwen de esta sesi\u00f3n", expanded=False):
+        st.success("An\u00e1lisis de Q-SOC disponible en la sesi\u00f3n actual.")
+        with st.expander("Ver an\u00e1lisis de Q-SOC de esta sesi\u00f3n", expanded=False):
             _mostrar_analisis_qwen3(analisis_sesion)
         return
 
     if id_incidente in st.session_state["analisis_qsoc_qwen"]:
         st.warning(
-            "Qwen no se encuentra disponible o no entreg\u00f3 una respuesta "
+            "Q-SOC no se encuentra disponible o no entreg\u00f3 una respuesta "
             "v\u00e1lida. El an\u00e1lisis base del incidente se mantiene "
             "disponible mediante ML, MITRE y playbook."
         )
-        with st.expander("Ver detalle del intento Qwen"):
+        with st.expander("Ver detalle del intento de Q-SOC"):
             st.json(analisis_sesion, expanded=False)
         return
 
     if _es_analisis_qwen_valido(analisis_guardado):
-        st.success("An\u00e1lisis Qwen previamente guardado en el reporte.")
-        with st.expander("Ver an\u00e1lisis Qwen guardado", expanded=False):
+        st.success("An\u00e1lisis de Q-SOC previamente guardado en el reporte.")
+        with st.expander("Ver an\u00e1lisis de Q-SOC guardado", expanded=False):
             _mostrar_analisis_qwen3(analisis_guardado)
         return
 
@@ -1035,7 +1035,7 @@ def _mostrar_qwen_bajo_demanda(reporte: dict[str, Any]) -> None:
     if clase_ml == "normal":
         st.info(
             "El modelo predictivo clasific\u00f3 este incidente como normal. "
-            "No se requiere an\u00e1lisis profundo con Qwen en modo demo."
+            "Se omiti\u00f3 el an\u00e1lisis avanzado con Q-SOC en modo demo"
         )
         return
 
@@ -1048,21 +1048,21 @@ def _mostrar_qwen_bajo_demanda(reporte: dict[str, Any]) -> None:
 
     st.warning(
         "El modelo predictivo detect\u00f3 riesgo. Puede generarse un an\u00e1lisis "
-        "SOC avanzado con Qwen para este incidente."
+        "SOC avanzado con Q-SOC para este incidente."
     )
 
     if st.button("Generar an\u00e1lisis SOC avanzado", key=f"qwen_{id_incidente}"):
-        with st.spinner("Consultando Qwen local para este incidente..."):
+        with st.spinner("Consultando Q-SOC para este incidente..."):
             analisis = _ejecutar_qwen_bajo_demanda(reporte)
         st.session_state["analisis_qsoc_qwen"][id_incidente] = analisis
 
         if _es_analisis_qwen_valido(analisis):
-            st.success("An\u00e1lisis Qwen generado para esta sesi\u00f3n.")
-            with st.expander("Ver an\u00e1lisis Qwen de esta sesi\u00f3n", expanded=True):
+            st.success("An\u00e1lisis de Q-SOC generado para esta sesi\u00f3n.")
+            with st.expander("Ver an\u00e1lisis de Q-SOC de esta sesi\u00f3n", expanded=True):
                 _mostrar_analisis_qwen3(analisis)
         else:
             st.warning(
-                "Qwen no se encuentra disponible o no entreg\u00f3 una respuesta "
+                "Q-SOC no se encuentra disponible o no entreg\u00f3 una respuesta "
                 "v\u00e1lida. El an\u00e1lisis base del incidente se mantiene "
                 "disponible mediante ML, MITRE y playbook."
             )

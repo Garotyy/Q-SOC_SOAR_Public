@@ -10,6 +10,9 @@ def clasificar_incidente(incidente: dict[str, Any]) -> str:
 
     tipo_detector = incidente.get("tipo_detector", "")
 
+    if tipo_detector == "network_flow_native":
+        return "Network Flow Observed"
+
     # Casos sin detector activo
     if tipo_detector == "sin_detector_activo":
         return "Unknown Event"

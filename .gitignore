@@ -7,3 +7,10 @@ data/Tuesday-WorkingHours.pcap_ISCX.csv
 **/.ipynb_checkpoints/
 data/Monday-WorkingHours.pcap_ISCX.csv
 data/Wednesday-workingHours.pcap_ISCX.csv
+
+# Artefactos locales de la ruta RF de red
+/data/modelo_random_forest_red.*
+/outputs/integracion_red/
+/respaldos_integracion_red/
+/integracion_red_archivos/
+/instalar_integracion_red.py

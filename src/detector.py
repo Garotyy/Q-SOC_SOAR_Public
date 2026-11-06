@@ -12,6 +12,7 @@ from collections import Counter, defaultdict
 from typing import Any
 
 from src.utils import parsear_timestamp, texto_lista
+from src.telemetria_red import incidente_flujo
 
 
 SSH_SERVICE_NAMES = {"ssh", "sshd"}
@@ -42,6 +43,10 @@ def detectar_incidentes(alertas: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
     for alerta in alertas:
         tipo = str(alerta.get("tipo_evento", "")).lower()
+
+        if tipo == "network_flow":
+            incidentes.append(incidente_flujo(alerta, conteo_por_ip))
+            continue
 
         if _es_evento_ssh(alerta) and _resultado_autenticacion(alerta) in {"fallido", "exitoso"}:
             llave = (

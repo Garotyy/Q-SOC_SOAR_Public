@@ -1,0 +1,2 @@
+# Dependencia adicional. No reinstala requirements.txt ni actualiza scikit-learn.
+xgboost>=2.1,<4
