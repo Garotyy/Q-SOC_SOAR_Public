@@ -21,6 +21,10 @@ DATA_DIR = PROJECT_ROOT / "data"
 RUTA_REPORTES = DATA_DIR / "reportes_generados.json"
 RUTA_METRICAS_ML = DATA_DIR / "metricas_random_forest.json"
 RUTA_EVENTOS_ML = DATA_DIR / "dataset_kali_homologado.csv"
+RUTA_COMPARACION_RED = (
+    PROJECT_ROOT / "outputs" / "comparacion_final_red" / "20261104T213643_357988Z"
+    / "resultados_tres_modelos_red.json"
+)
 
 CLAVE_TACTICA_MITRE = "t\u00e1ctica_mitre"
 CLAVE_TECNICA_MITRE = "t\u00e9cnica_mitre"
@@ -76,16 +80,12 @@ def _inyectar_estilos() -> None:
             max-width: 1280px;
         }
         .qsoc-hero {
-            border: 1px solid rgba(125, 211, 252, 0.22);
+            border: 1px solid #D1D5DB;
             border-radius: 14px;
             padding: 1.15rem 1.35rem;
             margin-bottom: 1rem;
-            background: linear-gradient(
-                135deg,
-                rgba(14, 116, 144, 0.20),
-                rgba(15, 23, 42, 0.45)
-            );
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.20);
+            background: #F5F6F8;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.04);
         }
         .qsoc-hero h1 {
             margin: 0;
@@ -95,29 +95,29 @@ def _inyectar_estilos() -> None:
         }
         .qsoc-subtitle {
             margin-top: 0.35rem;
-            color: rgba(226, 232, 240, 0.82);
+            color: #111111;
             font-size: 1rem;
         }
         .qsoc-demo-note {
             display: inline-block;
             margin-top: 0.75rem;
             padding: 0.35rem 0.65rem;
-            border: 1px solid rgba(56, 189, 248, 0.35);
+            border: 1px solid #D1D5DB;
             border-radius: 999px;
-            color: #bae6fd;
-            background: rgba(8, 47, 73, 0.45);
+            color: #374151;
+            background: #FFFFFF;
             font-size: 0.82rem;
         }
         .qsoc-card {
-            border: 1px solid rgba(148, 163, 184, 0.20);
+            border: 1px solid #D1D5DB;
             border-radius: 12px;
             padding: 0.9rem 1rem;
-            background: rgba(15, 23, 42, 0.36);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+            background: #F5F6F8;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
             min-height: 92px;
         }
         .qsoc-card-title {
-            color: rgba(203, 213, 225, 0.78);
+            color: #111111;
             font-size: 0.76rem;
             text-transform: uppercase;
             letter-spacing: 0.04em;
@@ -127,11 +127,11 @@ def _inyectar_estilos() -> None:
             font-size: 1.55rem;
             line-height: 1.2;
             font-weight: 700;
-            color: #f8fafc;
+            color: #111111;
         }
         .qsoc-card-note {
             margin-top: 0.2rem;
-            color: rgba(203, 213, 225, 0.74);
+            color: #374151;
             font-size: 0.8rem;
         }
         .qsoc-badge {
@@ -139,24 +139,24 @@ def _inyectar_estilos() -> None:
             padding: 0.18rem 0.5rem;
             border-radius: 999px;
             font-size: 0.78rem;
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            background: rgba(30, 41, 59, 0.65);
-            color: #e2e8f0;
+            border: 1px solid #D1D5DB;
+            background: #F5F6F8;
+            color: #111111;
         }
         .qsoc-badge.green {
-            color: #bbf7d0;
-            border-color: rgba(34, 197, 94, 0.35);
-            background: rgba(20, 83, 45, 0.35);
+            color: #166534;
+            border-color: #86EFAC;
+            background: #DCFCE7;
         }
         .qsoc-badge.red {
-            color: #fecaca;
-            border-color: rgba(248, 113, 113, 0.35);
-            background: rgba(127, 29, 29, 0.35);
+            color: #991B1B;
+            border-color: #FCA5A5;
+            background: #FEE2E2;
         }
         .qsoc-badge.blue {
-            color: #bfdbfe;
-            border-color: rgba(96, 165, 250, 0.35);
-            background: rgba(30, 64, 175, 0.30);
+            color: #111111;
+            border-color: #93C5FD;
+            background: #DBEAFE;
         }
         .qsoc-detail-grid {
             display: grid;
@@ -165,20 +165,20 @@ def _inyectar_estilos() -> None:
             font-size: 0.92rem;
         }
         .qsoc-detail-label {
-            color: rgba(203, 213, 225, 0.72);
+            color: #111111;
         }
         .qsoc-detail-value {
-            color: #f8fafc;
+            color: #111111;
             font-weight: 600;
             overflow-wrap: anywhere;
             min-width: 0;
         }
         .qsoc-list-card {
             max-width: 980px;
-            border: 1px solid rgba(148, 163, 184, 0.18);
+            border: 1px solid #D1D5DB;
             border-radius: 12px;
             padding: 0.85rem 1rem;
-            background: rgba(15, 23, 42, 0.28);
+            background: #F5F6F8;
             margin-bottom: 0.7rem;
         }
         .qsoc-list-card ol,
@@ -198,10 +198,10 @@ def _inyectar_estilos() -> None:
         .qsoc-confusion-table {
             max-width: 620px;
             margin: 0.7rem auto 0;
-            border: 1px solid rgba(148, 163, 184, 0.20);
+            border: 1px solid #D1D5DB;
             border-radius: 12px;
             overflow-x: auto;
-            background: rgba(15, 23, 42, 0.30);
+            background: #FFFFFF;
         }
         .qsoc-confusion-table table {
             width: 100%;
@@ -211,24 +211,130 @@ def _inyectar_estilos() -> None:
         .qsoc-confusion-table th,
         .qsoc-confusion-table td {
             padding: 0.45rem 0.65rem;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+            border-bottom: 1px solid #D1D5DB;
             text-align: center;
         }
         .qsoc-confusion-table th {
-            color: #bfdbfe;
+            color: #111111;
             font-weight: 650;
-            background: rgba(30, 41, 59, 0.58);
+            background: #F5F6F8;
         }
         .qsoc-confusion-table td:first-child,
         .qsoc-confusion-table th:first-child {
             text-align: left;
-            color: #e2e8f0;
+            color: #111111;
         }
         .qsoc-confusion-table tr:last-child td {
             border-bottom: 0;
         }
         .qsoc-card-title, .qsoc-card-value, .qsoc-hero h1 {
             overflow-wrap: anywhere;
+        }
+        .stApp, [data-testid="stAppViewContainer"],
+        [data-testid="stMain"], [data-testid="stHeader"],
+        [data-testid="stBottom"], [data-testid="stSidebar"] {
+            background-color: #FFFFFF !important;
+            color: #111111 !important;
+            color-scheme: light;
+        }
+        [data-testid="stMarkdownContainer"],
+        [data-testid="stHeading"], [data-testid="stWidgetLabel"],
+        [data-testid="stMetric"], [data-testid="stMetricValue"],
+        [data-testid="stMetricLabel"], [data-testid="stCheckbox"] label,
+        [data-testid="stExpander"] details summary {
+            color: #111111 !important;
+        }
+        [data-testid="stCaptionContainer"],
+        [data-testid="stTooltipContent"] {
+            color: #374151 !important;
+        }
+        [data-baseweb="tab-list"], [data-baseweb="tab"],
+        [data-baseweb="tab-panel"] {
+            background-color: #FFFFFF !important;
+            color: #111111 !important;
+        }
+        [data-baseweb="tab-highlight"] {
+            background-color: #2563EB !important;
+        }
+        [data-baseweb="tab-border"] {
+            background-color: #D1D5DB !important;
+        }
+        [data-baseweb="select"] > div, [data-baseweb="input"],
+        [data-testid="stTextInput"] input, [data-testid="stNumberInput"] input,
+        [data-baseweb="popover"] > div, [data-baseweb="menu"],
+        [role="listbox"], [role="option"], [role="dialog"],
+        [data-testid="stTooltipContent"], [data-baseweb="tooltip"] {
+            background-color: #FFFFFF !important;
+            color: #111111 !important;
+            border-color: #D1D5DB !important;
+        }
+        [data-baseweb="select"] input, [data-baseweb="select"] span,
+        [data-baseweb="select"] div,
+        [data-baseweb="select"] svg, [role="listbox"] *,
+        [data-baseweb="menu"] *, [data-baseweb="tooltip"] *,
+        [data-baseweb="popover"] *,
+        [role="dialog"] {
+            color: #111111 !important;
+            -webkit-text-fill-color: #111111;
+        }
+        [data-baseweb="select"] input::placeholder {
+            color: #374151 !important;
+            -webkit-text-fill-color: #374151;
+        }
+        [data-baseweb="tag"] {
+            background-color: #F5F6F8 !important;
+            color: #111111 !important;
+        }
+        [role="option"]:hover, [role="option"][aria-selected="true"],
+        [data-baseweb="menu"] li:hover {
+            background-color: #E5E7EB !important;
+        }
+        [data-baseweb="select"]:focus-within > div,
+        [data-testid="stTextInput"]:focus-within input,
+        button:focus-visible {
+            border-color: #2563EB !important;
+            outline-color: #2563EB !important;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.22) !important;
+        }
+        [data-testid="stCheckbox"] [data-baseweb="checkbox"] {
+            color: #111111 !important;
+        }
+        [data-testid="stCheckbox"] input:focus-visible + div {
+            outline-color: #2563EB !important;
+        }
+        [data-testid="stButton"] button,
+        [data-testid="stBaseButton-secondary"],
+        [data-testid="stBaseButton-headerNoPadding"],
+        [data-testid="stBaseButton-header"],
+        [data-testid="stElementToolbar"] button {
+            background-color: #F5F6F8 !important;
+            color: #111111 !important;
+            border-color: #D1D5DB !important;
+        }
+        [data-testid="stAlertContainer"],
+        [data-testid="stExpander"] details,
+        [data-testid="stVerticalBlockBorderWrapper"] {
+            background-color: #F5F6F8 !important;
+            color: #111111 !important;
+            border-color: #D1D5DB !important;
+        }
+        [data-testid="stJson"], [data-testid="stJson"] *,
+        [data-testid="stCode"], [data-testid="stCode"] * {
+            background-color: #F5F6F8 !important;
+            color: #111111 !important;
+        }
+        [data-testid="stDataFrame"], [data-testid="stTable"] {
+            background-color: #FFFFFF !important;
+            color: #111111 !important;
+            border-color: #D1D5DB !important;
+        }
+        [data-testid="stTable"] th {
+            background-color: #F5F6F8 !important;
+            color: #111111 !important;
+        }
+        [data-testid="stTable"] td {
+            background-color: #FFFFFF !important;
+            color: #111111 !important;
         }
         </style>
         """,
@@ -239,12 +345,12 @@ def _mostrar_encabezado() -> None:
     st.markdown(
         """
         <div class="qsoc-hero">
-          <h1>Q-SOC | Agente SOAR-IA con apoyo predictivo para respuesta ante incidentes</h1>
+          <h1>Q-SOC: agente de IA integrado a una arquitectura SOAR para la gestión inteligente de incidentes de ciberseguridad</h1>
           <div class="qsoc-subtitle">
-            Visualizaci\u00f3n del flujo de clasificaci\u00f3n, m\u00e9tricas ML y respuesta asistida
+            Selecciona un incidente para revisar su clasificación, la evidencia y las recomendaciones de Q-SOC.
           </div>
           <div class="qsoc-demo-note">
-            Modo demo: se cargan reportes y m\u00e9tricas ya generadas. Qwen solo se ejecuta bajo demanda.
+            Modo demo: se muestran reportes y métricas de una ejecución previa. Qwen solo se consulta si el analista lo solicita.
           </div>
         </div>
         """,
@@ -274,15 +380,15 @@ def _numero_es(valor: Any) -> str:
 
 
 def _estilizar_ejes(fig: Any, ax: Any) -> None:
-    fig.patch.set_facecolor("#0e1117")
-    ax.set_facecolor("#0e1117")
-    ax.tick_params(colors="#e2e8f0", labelsize=10)
-    ax.title.set_color("#f8fafc")
+    fig.patch.set_facecolor("#FFFFFF")
+    ax.set_facecolor("#FFFFFF")
+    ax.tick_params(colors="#111111", labelsize=10)
+    ax.title.set_color("#111111")
     ax.title.set_fontsize(12)
-    ax.xaxis.label.set_color("#e2e8f0")
-    ax.yaxis.label.set_color("#e2e8f0")
+    ax.xaxis.label.set_color("#111111")
+    ax.yaxis.label.set_color("#111111")
     for spine in ax.spines.values():
-        spine.set_color("#64748b")
+        spine.set_color("#D1D5DB")
 
 def main() -> None:
     st.set_page_config(
@@ -303,18 +409,9 @@ def main() -> None:
 
     _mostrar_estado_archivos(datos)
 
-    resumen, modelo, incidentes, eficiencia = st.tabs(
-        ["Resumen", "Modelo predictivo", "Incidentes", "Eficiencia"]
+    incidentes, modelo, eficiencia = st.tabs(
+        ["Incidentes", "Modelo predictivo", "Eficiencia"]
     )
-    with resumen:
-        if not df_reportes.empty:
-            _mostrar_kpis_principales(df_reportes)
-        else:
-            st.warning("No hay reportes demostrativos disponibles.")
-        st.caption("Los reportes demostrativos y los flujos del conjunto de prueba son conjuntos distintos.")
-    with modelo:
-        _mostrar_evaluacion_modelo(metricas_ml)
-        _mostrar_graficos_ml(metricas_ml, df_eventos_ml)
     with incidentes:
         if not df_reportes.empty:
             df_filtrado = _mostrar_incidentes_soc(df_reportes)
@@ -324,6 +421,10 @@ def main() -> None:
                 st.info("No hay incidentes que coincidan con los filtros seleccionados.")
         else:
             st.info("No hay reportes demostrativos disponibles.")
+    with modelo:
+        _mostrar_evaluacion_modelo(metricas_ml)
+        _mostrar_graficos_ml(metricas_ml, df_eventos_ml)
+        _mostrar_comparacion_clasificadores_red()
     with eficiencia:
         mostrar_grafico_tesis()
 
@@ -370,8 +471,7 @@ def _mostrar_estado_archivos(datos: dict[str, Any]) -> None:
     if faltantes:
         st.warning("Archivos no disponibles: " + ", ".join(faltantes))
 
-def _mostrar_kpis_principales(df: pd.DataFrame) -> None:
-    st.subheader("KPIs principales")
+def _mostrar_resumen_incidentes(df: pd.DataFrame) -> None:
     incidentes_totales = len(df)
     severidad = df.get("severidad", pd.Series(dtype=str)).astype(str)
     incidentes_criticos = int(
@@ -380,28 +480,23 @@ def _mostrar_kpis_principales(df: pd.DataFrame) -> None:
     escalamiento = _obtener_serie(df, "requiere_escalamiento", False)
     incidentes_escalados = int(escalamiento.fillna(False).sum())
 
-    tecnicas_mitre = df.get(CLAVE_ID_TECNICA, pd.Series(dtype=str)).fillna("N/A")
-    cobertura_mitre = int((tecnicas_mitre != "N/A").sum())
-    porcentaje_mitre = (
-        (cobertura_mitre / incidentes_totales) * 100 if incidentes_totales else 0
+    st.write(
+        f"{_numero_es(incidentes_totales)} incidentes · "
+        f"{_numero_es(incidentes_criticos)} críticos · "
+        f"{_numero_es(incidentes_escalados)} escalados por reglas"
     )
 
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        _tarjeta_metrica("Incidentes demostrativos", _numero_es(incidentes_totales))
-    with col2:
-        _tarjeta_metrica("Incidentes cr\u00edticos", incidentes_criticos)
-    with col3:
-        _tarjeta_metrica("Incidentes escalados", incidentes_escalados)
-    with col4:
-        _tarjeta_metrica(
-            "Cobertura MITRE ATT&CK",
-            f"{cobertura_mitre}/{incidentes_totales}",
-            f"{format(porcentaje_mitre, '.1f').replace('.', ',')}%",
-        )
-
 def _mostrar_evaluacion_modelo(metricas_ml: dict[str, Any]) -> None:
-    st.subheader("Evaluaci\u00f3n del modelo predictivo")
+    encabezado = "Evaluación del clasificador inicial"
+    matriz = metricas_ml.get("matriz_confusion", {}) if isinstance(metricas_ml, dict) else {}
+    valores = matriz.get("valores", []) if isinstance(matriz, dict) else []
+    try:
+        total_prueba = sum(sum(int(valor) for valor in fila) for fila in valores) if valores else None
+    except (TypeError, ValueError):
+        total_prueba = None
+    if total_prueba is not None:
+        encabezado += f" sobre {_numero_es(total_prueba)} flujos de prueba"
+    st.subheader(encabezado)
     metricas = metricas_ml.get("metricas") if isinstance(metricas_ml, dict) else None
     if not isinstance(metricas, dict):
         st.info("No hay m\u00e9tricas ML disponibles para mostrar.")
@@ -440,6 +535,74 @@ def _mostrar_graficos_ml(metricas_ml: dict[str, Any], df_eventos_ml: pd.DataFram
         _mostrar_matriz_confusion(metricas_ml, mostrar_tabla=False)
     with col4:
         _mostrar_tabla_matriz_confusion_desde_metricas(metricas_ml)
+
+
+def _mostrar_comparacion_clasificadores_red() -> None:
+    st.subheader("Comparación de clasificadores con variables originales de red")
+    nombres = {
+        "random_forest_alternativo_red": "Random Forest de red (modelo integrado)",
+        "xgboost_red": "XGBoost",
+        "arbol_decision_red": "Árbol de decisión",
+    }
+    try:
+        with RUTA_COMPARACION_RED.open("r", encoding="utf-8") as archivo:
+            comparacion = json.load(archivo)
+        filas = []
+        for clave, nombre in nombres.items():
+            f1_macro = float(comparacion["resultados"][clave]["prueba"]["f1_macro"])
+            if not 0 <= f1_macro <= 1:
+                raise ValueError(f"F1 macro fuera de rango para {nombre}.")
+            filas.append({"clave": clave, "modelo": nombre, "f1_macro": f1_macro})
+        protocolo = comparacion["protocolo"]
+        total_prueba = int(protocolo["particion"]["n_test"])
+        total_variables = len(protocolo["features_originales"])
+        if total_prueba <= 0 or total_variables <= 0:
+            raise ValueError("El contexto de la comparación está incompleto.")
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        st.warning(f"No se pudo cargar la comparación final de clasificadores de red: {error}")
+        return
+
+    st.caption(
+        f"{_numero_es(total_prueba)} flujos de prueba · "
+        f"{_numero_es(total_variables)} variables originales de red"
+    )
+    if plt is None:
+        st.warning("Matplotlib no está disponible para mostrar esta comparación.")
+        return
+
+    resultados = pd.DataFrame(filas).sort_values("f1_macro", ascending=False).reset_index(drop=True)
+    porcentajes = resultados["f1_macro"] * 100
+    colores = [
+        "#3b82f6" if clave == "random_forest_alternativo_red" else "#9CA3AF"
+        for clave in resultados["clave"]
+    ]
+    fig, ax = plt.subplots(figsize=(9, 3.4))
+    _estilizar_ejes(fig, ax)
+    barras = ax.barh(resultados["modelo"], porcentajes, color=colores, height=0.55)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 100)
+    ax.set_xlabel("F1 macro (%)")
+    ax.set_axisbelow(True)
+    ax.grid(axis="x", color="#D1D5DB", alpha=0.4)
+    for barra, porcentaje in zip(barras, porcentajes):
+        ax.annotate(
+            f"{format(porcentaje, '.2f').replace('.', ',')} %",
+            xy=(porcentaje, barra.get_y() + barra.get_height() / 2),
+            xytext=(-6, 0), textcoords="offset points",
+            ha="right", va="center", color="#111111",
+            bbox=dict(facecolor="#FFFFFF", edgecolor="none", alpha=0.95),
+        )
+    fig.tight_layout()
+    st.pyplot(fig)
+    plt.close(fig)
+
+    ventaja = (resultados.loc[0, "f1_macro"] - resultados.loc[1, "f1_macro"]) * 100
+    st.write(
+        f"{resultados.loc[0, 'modelo']} obtuvo el mayor F1 macro, con una ventaja de "
+        f"{format(ventaja, '.2f').replace('.', ',')} puntos porcentuales frente a "
+        f"{resultados.loc[1, 'modelo']}."
+    )
+
 
 def _mostrar_grafico_metricas(metricas_ml: dict[str, Any]) -> None:
     metricas = metricas_ml.get("metricas") if isinstance(metricas_ml, dict) else None
@@ -527,7 +690,7 @@ def _mostrar_barras_coloreadas(
     ax.set_title(titulo)
     ax.set_ylabel(etiqueta_y)
     ax.tick_params(axis="x", rotation=45)
-    ax.grid(axis="y", alpha=0.24)
+    ax.grid(axis="y", alpha=0.24, color="#D1D5DB")
     ax.grid(axis="x", visible=False)
 
     if limite_y is not None:
@@ -547,7 +710,7 @@ def _mostrar_barras_coloreadas(
             ha="center",
             va="bottom",
             fontsize=9,
-            color="#e2e8f0",
+            color="#111111",
         )
 
     fig.tight_layout()
@@ -586,7 +749,7 @@ def _mostrar_matriz_confusion(
         umbral = maximo / 2
         for fila, valores_fila in enumerate(valores):
             for columna, valor in enumerate(valores_fila):
-                color = "white" if valor > umbral else "black"
+                color = "#111111"
                 ax.text(
                     columna,
                     fila,
@@ -595,10 +758,11 @@ def _mostrar_matriz_confusion(
                     va="center",
                     color=color,
                     fontsize=9,
+                    bbox=dict(facecolor="#FFFFFF", edgecolor="none", alpha=0.9),
                 )
 
         barra_color = fig.colorbar(imagen, ax=ax, fraction=0.046, pad=0.04)
-        barra_color.ax.tick_params(colors="#e2e8f0", labelsize=9)
+        barra_color.ax.tick_params(colors="#111111", labelsize=9)
         barra_color.ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda valor, posicion: _numero_es(valor)))
         fig.tight_layout()
         st.pyplot(fig)
@@ -647,6 +811,7 @@ def _mostrar_tabla_matriz_confusion(labels: list[Any], valores: list[list[Any]])
 
 def _mostrar_incidentes_soc(df: pd.DataFrame) -> pd.DataFrame:
     st.subheader("Incidentes SOC")
+    _mostrar_resumen_incidentes(df)
     df_ordenado = _ordenar_incidentes(df)
 
     col1, col2, col3 = st.columns(3)
@@ -671,7 +836,7 @@ def _mostrar_incidentes_soc(df: pd.DataFrame) -> pd.DataFrame:
         columna for columna in COLUMNAS_TABLA_SOC if columna in df_filtrado.columns
     ]
     st.dataframe(
-        df_filtrado[columnas_disponibles], width="stretch", hide_index=True,
+        df_filtrado[columnas_disponibles].style.set_properties(**{"background-color": "#FFFFFF", "color": "#111111"}), width="stretch", hide_index=True,
         column_config={columna: st.column_config.Column(columna.replace("_", " ").capitalize(), width="medium") for columna in columnas_disponibles},
     )
     return df_filtrado
@@ -771,7 +936,8 @@ def _mostrar_detalle_incidente(
                     if valor_sec / total_eval < 0.06:
                         return
                     ax.text(x_coord, y_base + valor_sec / 2, f"{_numero_es(valor_sec)}\n({format(100*valor_sec/total_eval, '.1f').replace('.', ',')}%)",
-                            ha="center", va="center", color="white", fontweight="bold", fontsize=9)
+                            ha="center", va="center", color="#111111", fontweight="bold", fontsize=9,
+                            bbox=dict(facecolor="#FFFFFF", edgecolor="none", alpha=0.9))
 
             colocar_etiqueta(0, 0, escalado_ataque)
             colocar_etiqueta(0, escalado_ataque, escalado_benigno)
@@ -780,14 +946,14 @@ def _mostrar_detalle_incidente(
 
             # Totales en la parte superior de cada barra
             for idx_bar, suma_col in enumerate([escalados_totales, no_escalados_totales]):
-                ax.text(idx_bar, suma_col + total_eval * 0.02, f"n = {_numero_es(suma_col)}", ha="center", fontweight="bold", color="#e2e8f0")
+                ax.text(idx_bar, suma_col + total_eval * 0.02, f"n = {_numero_es(suma_col)}", ha="center", fontweight="bold", color="#111111")
 
             ax.set_ylabel("Número de flujos (conjunto de prueba)")
             ax.set_title(f"Decisión de filtrado del clasificador Q-SOC (n = {_numero_es(total_eval)})\n"
                          f"Filtrado como normal: {format(reduccion_carga_pct, '.1f').replace('.', ',')}% de los flujos", fontsize=12, fontweight="bold", pad=16)
             ax.set_ylim(0, max(escalados_totales, no_escalados_totales) * 1.16)
             ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda valor, posicion: _numero_es(valor)))
-            ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=2, facecolor="#1e293b", labelcolor="white")
+            ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=2, facecolor="#FFFFFF", edgecolor="#D1D5DB", labelcolor="#111111")
             ax.spines[["top", "right"]].set_visible(False)
 
             # Anotación llamativa para el Falso Negativo (Cifra Crítica)
@@ -1207,7 +1373,7 @@ def mostrar_grafico_tesis():
         "Diferencia (Ahorro)": ["-24,70 s (-48,50%)", "-44,87 s (-66,87%)", "-20,86 s (-44,19%)", "-30,14 s (-54,72%)"],
         "Factor de Aceleracion": ["1,94x mas rapido", "3,02x mas rapido", "1,79x mas rapido", "2,21x mas rapido"]
     })
-    st.dataframe(df_comparativa, width="stretch", hide_index=True,
+    st.dataframe(df_comparativa.style.set_properties(**{"background-color": "#FFFFFF", "color": "#111111"}), width="stretch", hide_index=True,
                  column_config={columna: st.column_config.Column(columna, width="medium") for columna in df_comparativa.columns})
 
     # Grafico comparativo y conclusiones
@@ -1221,26 +1387,26 @@ def mostrar_grafico_tesis():
         barras_sin = ax.bar(x - ancho/2, tiempos_sin, ancho, label="Sin Q-SOC (Ronda 1)", color="#ef4444", edgecolor="white", linewidth=0.5)
         barras_con = ax.bar(x + ancho/2, tiempos_con, ancho, label="Con Q-SOC (Ronda 2)", color="#10b981", edgecolor="white", linewidth=0.5)
 
-        ax.set_ylabel("Tiempo de revisión (segundos)", color="white")
-        ax.set_title("Comparación del tiempo de revisión: sin Q-SOC y con Q-SOC", color="white", fontsize=12, pad=18, wrap=True)
+        ax.set_ylabel("Tiempo de revisión (segundos)", color="#111111")
+        ax.set_title("Comparación del tiempo de revisión: sin Q-SOC y con Q-SOC", color="#111111", fontsize=12, pad=18, wrap=True)
         ax.set_ylim(0, max(tiempos_sin + tiempos_con) * 1.22)
         ax.set_xticks(x)
-        ax.set_xticklabels(eventos, color="white", fontweight="bold")
-        ax.tick_params(colors="white")
-        ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=2, facecolor="#1e293b", edgecolor="white", labelcolor="white")
-        ax.grid(axis="y", alpha=0.2, linestyle="--")
+        ax.set_xticklabels(eventos, color="#111111", fontweight="bold")
+        ax.tick_params(colors="#111111")
+        ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=2, facecolor="#FFFFFF", edgecolor="#D1D5DB", labelcolor="#111111")
+        ax.grid(axis="y", alpha=0.2, linestyle="--", color="#D1D5DB")
 
-        fig.patch.set_facecolor("#0e1117")
-        ax.set_facecolor("#0e1117")
+        fig.patch.set_facecolor("#FFFFFF")
+        ax.set_facecolor("#FFFFFF")
 
         # Etiquetas numericas sobre las barras
         for barra in barras_sin:
             yval = barra.get_height()
-            ax.text(barra.get_x() + barra.get_width()/2, yval + 1.2, f"{format(yval, '.1f').replace('.', ',')}s", ha="center", va="bottom", color="#fca5a5", fontweight="bold", fontsize=8.5)
+            ax.text(barra.get_x() + barra.get_width()/2, yval + 1.2, f"{format(yval, '.1f').replace('.', ',')}s", ha="center", va="bottom", color="#111111", fontweight="bold", fontsize=8.5)
 
         for barra in barras_con:
             yval = barra.get_height()
-            ax.text(barra.get_x() + barra.get_width()/2, yval + 1.2, f"{format(yval, '.1f').replace('.', ',')}s", ha="center", va="bottom", color="#6ee7b7", fontweight="bold", fontsize=8.5)
+            ax.text(barra.get_x() + barra.get_width()/2, yval + 1.2, f"{format(yval, '.1f').replace('.', ',')}s", ha="center", va="bottom", color="#111111", fontweight="bold", fontsize=8.5)
 
         fig.tight_layout()
         st.pyplot(fig)
